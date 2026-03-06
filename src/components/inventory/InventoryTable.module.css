@@ -1,0 +1,231 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(128, 128, 128, 0.05);
+}
+
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: var(--foreground);
+}
+
+.searchBox input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+
+.filterSelect {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 180px;
+}
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  opacity: 0.6;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.table tr {
+  transition: background-color 0.2s;
+}
+
+.table tr:hover {
+  background: rgba(128, 128, 128, 0.05);
+}
+
+.lowStockRow td {
+  background: rgba(239, 68, 68, 0.05); /* very faint red tint for low stock */
+}
+
+.lowStockRow:hover td {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.statusCell {
+  width: 50px;
+  text-align: center;
+}
+
+.goodDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  margin-left: 4px;
+}
+
+.nameCell {
+  min-width: 250px;
+}
+
+.itemName {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.lowStockText {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.capitalize {
+  text-transform: capitalize;
+  opacity: 0.8;
+}
+
+.stockControls {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.qty {
+  font-weight: 600;
+  min-width: 40px;
+  text-align: center;
+}
+
+.unit {
+  font-size: 0.8rem;
+  opacity: 0.5;
+  font-weight: normal;
+}
+
+.supplierText {
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.actionsCell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.editBtn, .deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+  color: var(--foreground);
+  opacity: 0.6;
+}
+
+.editBtn:hover {
+  opacity: 1;
+  background: rgba(128, 128, 128, 0.1);
+  border-color: var(--border);
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem !important;
+  color: var(--foreground);
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.imageCell {
+  width: 60px;
+}
+
+.thumbnailWrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(128, 128, 128, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailPlaceholder {
+  opacity: 0.4;
+}
+
+.lowStockBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--surface);
+}

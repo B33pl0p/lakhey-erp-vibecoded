@@ -1,0 +1,190 @@
+.wrapper {
+  width: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  color: var(--foreground);
+}
+
+.searchBox input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+
+.filterSelect {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.inactiveRow {
+  opacity: 0.45;
+}
+
+.imageCell {
+  width: 52px;
+}
+
+.thumbnail {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  color: #6b7280;
+}
+
+.nameCell {
+  font-weight: 600;
+  max-width: 220px;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.marginBadge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 99px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.toggle {
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  transition: opacity 0.15s;
+}
+
+.toggleOn {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.toggleOff {
+  background: rgba(107, 114, 128, 0.15);
+  color: #6b7280;
+}
+
+.toggle:hover {
+  opacity: 0.75;
+}
+
+.actionsCell {
+  white-space: nowrap;
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.viewBtn, .editBtn, .deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.viewBtn { color: var(--accent); }
+.editBtn { color: #f59e0b; }
+.deleteBtn { color: #ef4444; }
+
+.viewBtn:hover { background: rgba(79, 70, 229, 0.1); }
+.editBtn:hover { background: rgba(245, 158, 11, 0.1); }
+.deleteBtn:hover { background: rgba(239, 68, 68, 0.1); }
+
+.emptyState {
+  text-align: center;
+  color: #6b7280;
+  padding: 3rem 1rem !important;
+}

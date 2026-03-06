@@ -1,0 +1,95 @@
+:root {
+  --background: #f8f9fa;
+  --foreground: #111827;
+  --accent: #4f46e5;
+  --accent-glow: rgba(79, 70, 229, 0.4);
+  --surface: rgba(255, 255, 255, 0.7);
+  --border: rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f111a;
+    --foreground: #f3f4f6;
+    --accent: #818cf8;
+    --accent-glow: rgba(129, 140, 248, 0.25);
+    --surface: rgba(30, 33, 43, 0.6);
+    --border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  background-image: 
+    radial-gradient(circle at 15% 50%, var(--accent-glow), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.15), transparent 25%);
+  background-attachment: fixed;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* Force dark mode native UI elements (like scrollbars and select dropdowns) if in dark scheme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+option {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* App Shell Layout */
+.appLayout {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.mainArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 260px; /* Width of sidebar */
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  width: calc(100% - 260px);
+}
+
+.contentWrapper {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .mainArea {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
