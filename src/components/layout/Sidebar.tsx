@@ -12,6 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
+import { PriceCalculator } from "./PriceCalculator";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -55,6 +56,10 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      <div className={styles.sidebarFooter}>
+        <PriceCalculator />
+      </div>
     </aside>
   );
 }

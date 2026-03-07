@@ -3,7 +3,7 @@ import { formatCurrency } from "@/lib/utils/currency";
 import Link from "next/link";
 import {
   ShoppingCart, Users, TrendingUp, AlertTriangle,
-  Clock, CheckCircle, Package, FileText,
+  Clock, CheckCircle, Package, FileText, UserPlus,
 } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -198,6 +198,44 @@ export default async function DashboardPage() {
             </table>
           )}
         </div>
+      </div>
+
+      {/* Recent Customers */}
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}><UserPlus size={16} /> Recent Customers</h2>
+          <Link href="/customers" className={styles.viewAllLink}>View all →</Link>
+        </div>
+        {data.recentCustomers.length === 0 ? (
+          <p className={styles.emptyState}>No customers yet.</p>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th className={styles.right}>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.recentCustomers.map(c => (
+                <tr key={c.$id}>
+                  <td>
+                    <Link href={`/customers/${c.$id}`} className={styles.tableLink}>
+                      {c.name}
+                    </Link>
+                  </td>
+                  <td className={styles.muted}>{c.email || "—"}</td>
+                  <td className={styles.muted}>{c.phone || "—"}</td>
+                  <td className={`${styles.right} ${styles.muted}`}>
+                    {new Date(c.$createdAt).toLocaleDateString("en-NP", { month: "short", day: "numeric", year: "numeric" })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Low Stock panel — only shown if there are low stock items */}

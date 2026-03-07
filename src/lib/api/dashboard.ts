@@ -14,6 +14,7 @@ export interface DashboardStats {
   lowStockItems: LowStockItem[];
   recentOrders: RecentOrder[];
   recentInvoices: RecentInvoice[];
+  recentCustomers: RecentCustomer[];
   totalCustomers: number;
 }
 
@@ -43,6 +44,14 @@ export interface RecentInvoice {
   amount: number;
   status: string;
   due_date?: string;
+  $createdAt: string;
+}
+
+export interface RecentCustomer {
+  $id: string;
+  name: string;
+  email?: string;
+  phone?: string;
   $createdAt: string;
 }
 
@@ -133,6 +142,18 @@ export async function getDashboardData(): Promise<DashboardStats> {
     $createdAt: d.$createdAt as string,
   }));
 
+  // Recent customers (last 5 by createdAt)
+  const sortedCustomers = [...customersRes.documents].sort(
+    (a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+  );
+  const recentCustomers: RecentCustomer[] = sortedCustomers.slice(0, 5).map(d => ({
+    $id: d.$id,
+    name: d.name as string,
+    email: d.email as string | undefined,
+    phone: d.phone as string | undefined,
+    $createdAt: d.$createdAt as string,
+  }));
+
   return {
     totalOrders,
     pendingOrders,
@@ -142,6 +163,7 @@ export async function getDashboardData(): Promise<DashboardStats> {
     lowStockItems,
     recentOrders,
     recentInvoices,
+    recentCustomers,
     totalCustomers: customersRes.total,
   };
 }

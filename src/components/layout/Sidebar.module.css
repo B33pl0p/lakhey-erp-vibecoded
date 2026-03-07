@@ -50,6 +50,13 @@
   flex-direction: column;
   gap: 0.5rem;
   overflow-y: auto;
+  flex: 1;
+}
+
+.sidebarFooter {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  flex-shrink: 0;
 }
 
 .navItem {
