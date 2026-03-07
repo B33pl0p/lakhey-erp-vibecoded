@@ -12,6 +12,7 @@ export const appwriteConfig = {
     orders: process.env.NEXT_PUBLIC_COLLECTION_ORDERS!,
     invoices: process.env.NEXT_PUBLIC_COLLECTION_INVOICES!,
     payments: process.env.NEXT_PUBLIC_COLLECTION_PAYMENTS!,
+    businessConfig: process.env.NEXT_PUBLIC_COLLECTION_BUSINESS_CONFIG || "business_config",
   }
 };
 

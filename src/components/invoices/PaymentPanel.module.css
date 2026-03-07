@@ -1,0 +1,259 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  background: rgba(128,128,128,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.summaryLabel {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.5;
+  font-weight: 600;
+}
+
+.summaryValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.paid {
+  color: #10b981;
+}
+
+.remaining {
+  color: #f59e0b;
+}
+
+.zeroed {
+  color: #10b981;
+}
+
+/* List */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.paymentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: rgba(128,128,128,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.paymentLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.paymentMethod {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.paymentDate {
+  font-size: 0.8rem;
+  opacity: 0.55;
+}
+
+.paymentNotes {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.paymentRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.paymentAmount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  color: #10b981;
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.15s;
+}
+
+.deleteBtn:hover {
+  background: rgba(239,68,68,0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+  opacity: 1;
+}
+
+.empty {
+  opacity: 0.5;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  border: 1px dashed var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.addBtn:hover {
+  background: rgba(var(--accent-rgb, 99, 102, 241), 0.08);
+}
+
+/* Add form */
+.addForm {
+  background: rgba(128,128,128,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addForm h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.field input,
+.field select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.875rem;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+}
+
+.error {
+  font-size: 0.78rem;
+  color: #ef4444;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.cancelBtn {
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.cancelBtn:hover {
+  background: rgba(128,128,128,0.1);
+}
+
+.submitBtn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--accent-glow);
+  transition: all 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

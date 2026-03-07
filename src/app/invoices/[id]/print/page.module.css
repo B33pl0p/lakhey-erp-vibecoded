@@ -1,0 +1,278 @@
+/* Screen layout */
+.printPage {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 4rem;
+}
+
+/* Screen-only controls */
+.screenControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.printBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--accent-glow);
+  transition: all 0.2s;
+}
+
+.printBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.backLink {
+  color: var(--foreground);
+  opacity: 0.6;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.backLink:hover {
+  opacity: 1;
+}
+
+/* Bill card */
+.bill {
+  background: #ffffff;
+  color: #111827;
+  border-radius: 12px;
+  padding: 3rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Bill header */
+.billHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.businessInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.logoImg {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.businessName {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.15rem;
+}
+
+.businessTagline {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 0.1rem;
+}
+
+.businessDetail {
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.invoiceMeta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.invoiceNumber {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #1f2937;
+}
+
+.dateInfo {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0;
+}
+
+/* Info grid */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.infoTitle {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.infoName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.infoLine {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Line items table */
+.lineTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  color: #111827;
+}
+
+.lineTable th {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+}
+
+.lineTable td {
+  padding: 0.875rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.center {
+  text-align: center;
+  color: #9ca3af;
+}
+
+.muted {
+  color: #9ca3af;
+}
+
+/* Totals */
+.totalsSection {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.totalsBlock {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #374151;
+  padding: 0.25rem 0;
+}
+
+.grandTotal {
+  border-top: 2px solid #111827;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.greenText {
+  color: #059669;
+  font-weight: 600;
+}
+
+/* Sections */
+.paymentsSection,
+.notesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionHeading {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+/* Footer */
+.billFooter {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding-top: 0.5rem;
+}
+
+/* ─── PRINT STYLES ─────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide on-screen controls */
+  .screenControls {
+    display: none !important;
+  }
+
+  /* Remove decorative styles so the bill prints cleanly */
+  .printPage {
+    max-width: 100%;
+    padding: 0;
+    gap: 0;
+  }
+
+  .bill {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 1.5rem !important;
+    background: white !important;
+    color: black !important;
+  }
+}

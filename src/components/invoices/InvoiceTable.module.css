@@ -1,0 +1,143 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(128, 128, 128, 0.05);
+}
+
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: var(--foreground);
+}
+
+.searchBox input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+
+.filterSelect {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 160px;
+}
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  opacity: 0.6;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.table tbody tr:hover {
+  background: rgba(128, 128, 128, 0.05);
+}
+
+.invLink {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
+.invLink:hover {
+  text-decoration: underline;
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.price {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.overdue {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.15s;
+  opacity: 0.7;
+}
+
+.actionBtn:hover {
+  background: var(--border);
+  opacity: 1;
+}
+
+.danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: #ef4444;
+  color: #ef4444;
+  opacity: 1;
+}
+
+.empty {
+  padding: 4rem;
+  text-align: center;
+  opacity: 0.5;
+}

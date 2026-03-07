@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PrintFlow | 3D Printer ERP",
-  description: "Advanced enterprise resource planning for 3D printing farms. Manage your fleet, filaments, and fulfillment.",
+  title: "Lakhey Labs ERP",
+  description: "Enterprise resource planning for Lakhey Labs. Manage orders, customers, inventory and invoices.",
 };
 
 import { ToastProvider } from "@/components/ui/ToastContext";

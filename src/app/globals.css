@@ -93,3 +93,34 @@ a {
   }
 }
 
+/* ── Print: strip ALL app chrome, show only bill ── */
+@page {
+  size: auto;
+  margin: 0mm;
+}
+
+@media print {
+  body {
+    background: white !important;
+    background-image: none !important;
+    color: black !important;
+  }
+
+  /* Hide sidebar and topbar */
+  aside,
+  header {
+    display: none !important;
+  }
+
+  /* Reset main layout so content fills the page */
+  .mainArea {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .contentWrapper {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}
+

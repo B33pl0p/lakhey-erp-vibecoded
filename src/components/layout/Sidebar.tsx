@@ -30,8 +30,8 @@ export function Sidebar() {
     <aside className={styles.sidebar}>
       <div className={styles.header}>
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>PF</div>
-          <span className={styles.logoText}>PrintFlow</span>
+          <div className={styles.logoIcon}>LL</div>
+          <span className={styles.logoText}>Lakhey Labs</span>
         </div>
       </div>
 
