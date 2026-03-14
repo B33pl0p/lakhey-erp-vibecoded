@@ -23,8 +23,9 @@ export interface BusinessConfig {
   // VAT settings
   vat_enabled: boolean;
   vat_rate: number; // default 13 (%)
-  // Invoice defaults
+  // Invoice / Quote defaults
   invoice_prefix: string; // default "INV"
+  quote_prefix: string;   // default "QUO"
   invoice_default_notes?: string;
   invoice_payment_terms?: string;
   // Operational defaults
@@ -32,6 +33,8 @@ export interface BusinessConfig {
   default_order_deadline_days: number; // default 7
   // Fiscal year
   fiscal_year_type: 'calendar' | 'nepali'; // default 'calendar'
+  // Pricing tool
+  pricing_rates?: string; // JSON-serialised rates object
 }
 
 const DEFAULT_CONFIG: BusinessConfig = {
@@ -40,6 +43,7 @@ const DEFAULT_CONFIG: BusinessConfig = {
   vat_enabled: false,
   vat_rate: 13,
   invoice_prefix: "INV",
+  quote_prefix: "QUO",
   low_stock_threshold: 5,
   default_order_deadline_days: 7,
   fiscal_year_type: 'calendar',
@@ -60,6 +64,11 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
   }
 }
 
+export async function savePricingRates(rates: Record<string, number>): Promise<void> {
+  await saveBusinessConfig({ pricing_rates: JSON.stringify(rates) });
+  revalidatePath('/pricing');
+}
+
 export async function saveBusinessConfig(data: Partial<BusinessConfig>): Promise<BusinessConfig> {
   const { databases } = await createAdminClient();
 
@@ -70,7 +79,7 @@ export async function saveBusinessConfig(data: Partial<BusinessConfig>): Promise
     "pan_number", "vat_number", "company_reg_number",
     "vat_enabled", "vat_rate",
     "invoice_prefix", "invoice_default_notes", "invoice_payment_terms",
-    "low_stock_threshold", "default_order_deadline_days", "fiscal_year_type",
+    "fiscal_year_type", "pricing_rates",
   ];
   for (const key of fields) {
     if (data[key] !== undefined) {

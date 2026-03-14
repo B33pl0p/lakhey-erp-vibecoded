@@ -41,6 +41,7 @@ export default async function OrderDetailPage({ params }: Props) {
     order.deadline &&
     new Date(order.deadline) < new Date() &&
     order.status !== "delivered" &&
+    order.status !== "paid" &&
     order.status !== "cancelled";
 
   return (

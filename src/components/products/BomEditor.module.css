@@ -250,7 +250,8 @@
 
 .marginItem strong { font-size: 1.1rem; }
 .marginGood { color: #10b981 !important; }
-.marginLow { color: #f59e0b !important; }
+.marginLow  { color: #f59e0b !important; }
+.profitLoss { color: #ef4444 !important; }
 
 .empty {
   text-align: center;

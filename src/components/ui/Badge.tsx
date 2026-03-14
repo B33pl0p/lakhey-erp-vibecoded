@@ -36,14 +36,19 @@ export function Badge({ status, label }: BadgeProps) {
       break;
     case "done":
     case "paid":
+    case "accepted":
       statusClass = styles.green;
       break;
     case "cancelled":
+    case "rejected":
       statusClass = styles.red;
       break;
     case "delivered":
     case "draft":
       statusClass = styles.gray;
+      break;
+    case "expired":
+      statusClass = styles.yellow;
       break;
   }
 

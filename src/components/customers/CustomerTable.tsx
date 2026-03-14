@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Customer } from "@/lib/api/customers";
 import { deleteCustomer } from "@/lib/api/customers";
 import { useToast } from "@/components/ui/ToastContext";
@@ -10,6 +11,7 @@ import styles from "./CustomerTable.module.css";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 
 export function CustomerTable({ initialCustomers }: { initialCustomers: Customer[] }) {
+  const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -21,6 +23,7 @@ export function CustomerTable({ initialCustomers }: { initialCustomers: Customer
       await deleteCustomer(deletingId);
       setCustomers(prev => prev.filter(c => c.$id !== deletingId));
       toast("Customer deleted successfully", "success");
+      router.refresh();
     } catch {
       toast("Error deleting customer", "error");
     } finally {

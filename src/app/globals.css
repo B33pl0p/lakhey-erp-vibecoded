@@ -1,21 +1,11 @@
 :root {
-  --background: #f8f9fa;
-  --foreground: #111827;
-  --accent: #4f46e5;
-  --accent-glow: rgba(79, 70, 229, 0.4);
-  --surface: rgba(255, 255, 255, 0.7);
-  --border: rgba(0, 0, 0, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f111a;
-    --foreground: #f3f4f6;
-    --accent: #818cf8;
-    --accent-glow: rgba(129, 140, 248, 0.25);
-    --surface: rgba(30, 33, 43, 0.6);
-    --border: rgba(255, 255, 255, 0.1);
-  }
+  --background: #0f111a;
+  --foreground: #f3f4f6;
+  --accent: #818cf8;
+  --accent-glow: rgba(129, 140, 248, 0.25);
+  --surface: rgba(30, 33, 43, 0.6);
+  --border: rgba(255, 255, 255, 0.1);
+  color-scheme: dark;
 }
 
 html, body {
@@ -42,13 +32,6 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-}
-
-/* Force dark mode native UI elements (like scrollbars and select dropdowns) if in dark scheme */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-  }
 }
 
 option {

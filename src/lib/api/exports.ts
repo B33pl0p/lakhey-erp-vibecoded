@@ -63,3 +63,23 @@ export async function getInvoicesForExport() {
     created_at: d.$createdAt as string,
   }));
 }
+
+export async function getExpensesForExport() {
+  const { databases } = await createAdminClient();
+  const response = await databases.listDocuments(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.expenses,
+    [Query.limit(1000), Query.orderDesc('date')]
+  );
+  return response.documents.map(d => ({
+    id: d.$id,
+    title: d.title as string,
+    amount: d.amount as number,
+    category: d.category as string,
+    date: (d.date as string) || '',
+    vendor: (d.vendor as string) || '',
+    payment_method: (d.payment_method as string) || '',
+    notes: (d.notes as string) || '',
+    created_at: d.$createdAt as string,
+  }));
+}

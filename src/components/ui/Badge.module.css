@@ -46,10 +46,8 @@
   border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  :global(:not(.light-theme)) .yellow { color: #fef08a; }
-  :global(:not(.light-theme)) .blue { color: #93c5fd; }
-  :global(:not(.light-theme)) .green { color: #6ee7b7; }
-  :global(:not(.light-theme)) .red { color: #fca5a5; }
-  :global(:not(.light-theme)) .gray { color: #e5e7eb; }
-}
+.yellow { color: #fef08a; }
+.blue { color: #93c5fd; }
+.green { color: #6ee7b7; }
+.red { color: #fca5a5; }
+.gray { color: #e5e7eb; }

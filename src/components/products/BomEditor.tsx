@@ -21,6 +21,7 @@ interface BomEditorProps {
   sellingPrice: number;
   initialBom: BomLine[];
   allInventoryItems: InventoryItem[];
+  onMakingCostChange?: (cost: number) => void;
 }
 
 interface AddForm {
@@ -51,6 +52,7 @@ export function BomEditor({
   sellingPrice,
   initialBom,
   allInventoryItems,
+  onMakingCostChange,
 }: BomEditorProps) {
   const { toast } = useToast();
   const [bom, setBom] = useState<BomLine[]>(initialBom);
@@ -79,6 +81,7 @@ export function BomEditor({
   const syncMakingCost = async (newBom: BomLine[]) => {
     const { makingCost } = computeSummary(newBom, laborCost);
     await syncProductMakingCost(productId, makingCost);
+    onMakingCostChange?.(makingCost);
   };
 
   // ── ADD ──────────────────────────────────────────────────────────────────
@@ -89,7 +92,7 @@ export function BomEditor({
     }
     setSaving(true);
     try {
-      await addBomLine({
+      const { $id: realId } = await addBomLine({
         product_id: productId,
         inventory_item_id: addForm.inventory_item_id,
         quantity: Number(addForm.quantity),
@@ -97,13 +100,13 @@ export function BomEditor({
         notes: addForm.notes || undefined,
       });
 
-      // Build enriched line for local state
+      // Build enriched line for local state using the real Appwrite ID
       const inv = allInventoryItems.find(i => i.$id === addForm.inventory_item_id)!;
       const qty = Number(addForm.quantity);
       const override = addForm.unit_cost_override !== "" ? Number(addForm.unit_cost_override) : null;
       const effective = override != null ? override : inv.unit_cost;
       const newLine: BomLine = {
-        $id: `tmp-${Date.now()}`, // will refresh on next server render
+        $id: realId,
         product_id: productId,
         inventory_item_id: inv.$id,
         quantity: qty,
@@ -188,8 +191,9 @@ export function BomEditor({
   };
 
   const { materialCost, totalWeightGrams, makingCost } = computeSummary(bom, laborCost);
+  const profitRs = sellingPrice - makingCost;
   const marginPct = sellingPrice > 0
-    ? ((sellingPrice - makingCost) / sellingPrice) * 100
+    ? (profitRs / sellingPrice) * 100
     : 0;
 
   return (
@@ -416,6 +420,12 @@ export function BomEditor({
         <div className={styles.summaryItem}>
           <span>Selling Price</span>
           <strong>{formatCurrency(sellingPrice)}</strong>
+        </div>
+        <div className={styles.summaryItem}>
+          <span>Profit</span>
+          <strong className={profitRs < 0 ? styles.profitLoss : styles.marginGood}>
+            {formatCurrency(profitRs)}
+          </strong>
         </div>
         <div className={`${styles.summaryItem} ${styles.marginItem}`}>
           <span>Margin</span>

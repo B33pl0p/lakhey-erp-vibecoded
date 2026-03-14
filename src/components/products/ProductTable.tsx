@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/api/products";
 import { deleteProduct, toggleProductActive } from "@/lib/api/products";
 import { getFilePreviewUrl } from "@/lib/api/storage";
@@ -10,7 +11,7 @@ import Link from "next/link";
 import styles from "./ProductTable.module.css";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { formatCurrency } from "@/lib/utils/currency";
-import { useEffect } from "react";
+
 
 const CATEGORIES = ["lamp", "print", "enclosure", "decor", "other"] as const;
 
@@ -21,6 +22,7 @@ function calcMargin(selling: number, making: number): string {
 }
 
 export function ProductTable({ initialProducts }: { initialProducts: Product[] }) {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -50,6 +52,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
         prev.map(p => p.$id === product.$id ? { ...p, is_active: !p.is_active } : p)
       );
       toast(`Product ${!product.is_active ? "activated" : "deactivated"}`, "success");
+      router.refresh();
     } catch {
       toast("Failed to update product status", "error");
     } finally {
@@ -63,6 +66,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
       await deleteProduct(deletingId);
       setProducts(prev => prev.filter(p => p.$id !== deletingId));
       toast("Product deleted", "success");
+      router.refresh();
     } catch {
       toast("Error deleting product", "error");
     } finally {

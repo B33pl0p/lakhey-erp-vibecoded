@@ -9,7 +9,11 @@ import {
   Package,
   Layers,
   FileText,
+  ClipboardList,
   Settings,
+  Receipt,
+  ListChecks,
+  DollarSign,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { PriceCalculator } from "./PriceCalculator";
@@ -21,7 +25,11 @@ const navItems = [
   { name: "Products", href: "/products", icon: Package },
   { name: "Inventory", href: "/inventory", icon: Layers },
   { name: "Invoices", href: "/invoices", icon: FileText },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Quotations", href: "/quotations", icon: ClipboardList },
+  { name: "Expenses",       href: "/expenses",  icon: Receipt },
+  { name: "Job Tracker",    href: "/tasks",     icon: ListChecks },
+  { name: "Pricing",        href: "/pricing",   icon: DollarSign },
+  { name: "Settings",       href: "/settings",  icon: Settings },
 ];
 
 export function Sidebar() {

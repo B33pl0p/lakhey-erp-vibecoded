@@ -5,17 +5,21 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/ToastContext";
 import { createProduct, updateProduct, type Product } from "@/lib/api/products";
 import { uploadFile } from "@/lib/api/storage";
+import { formatCurrency } from "@/lib/utils/currency";
+import type { InventoryItem } from "@/lib/api/inventory";
+import { BomEditor } from "./BomEditor";
 import styles from "./ProductForm.module.css";
 import Link from "next/link";
-import { ArrowLeft, Save, ImageIcon, FileText } from "lucide-react";
+import { ArrowLeft, Save, ImageIcon, FileText, CheckCircle, Edit2, Package, Calculator } from "lucide-react";
 
 interface ProductFormProps {
   initialData?: Product;
+  allInventoryItems?: InventoryItem[];
 }
 
 const CATEGORIES = ["lamp", "print", "enclosure", "decor", "other"] as const;
 
-export function ProductForm({ initialData }: ProductFormProps) {
+export function ProductForm({ initialData, allInventoryItems = [] }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +28,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
     name: initialData?.name || "",
     category: initialData?.category || "print",
     description: initialData?.description || "",
+    // Pricing — only used in edit mode
     labor_cost: initialData?.labor_cost ?? 0,
     selling_price: initialData?.selling_price ?? 0,
     height_mm: initialData?.height_mm || "",
@@ -35,6 +40,19 @@ export function ProductForm({ initialData }: ProductFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [stlFile, setStlFile] = useState<File | null>(null);
+
+  // Phase 2: set after creation to enter BOM + pricing inline
+  const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
+
+  // Edit mode live pricing
+  const editMaterialCost = initialData
+    ? Math.max(0, (initialData.making_cost ?? 0) - (initialData.labor_cost ?? 0))
+    : 0;
+  const liveLaborCost = Number(formData.labor_cost) || 0;
+  const liveMakingCost = initialData ? liveLaborCost + editMaterialCost : liveLaborCost;
+  const liveSellingPrice = Number(formData.selling_price) || 0;
+  const liveProfit = liveSellingPrice - liveMakingCost;
+  const liveMargin = liveSellingPrice > 0 ? (liveProfit / liveSellingPrice) * 100 : 0;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -78,28 +96,38 @@ export function ProductForm({ initialData }: ProductFormProps) {
       }
 
       const payload: Partial<Product> = {
-        ...formData,
-        labor_cost: Number(formData.labor_cost),
-        selling_price: Number(formData.selling_price),
+        name: formData.name,
+        category: formData.category,
+        description: formData.description,
         height_mm: formData.height_mm ? Number(formData.height_mm) : undefined,
         width_mm: formData.width_mm ? Number(formData.width_mm) : undefined,
         depth_mm: formData.depth_mm ? Number(formData.depth_mm) : undefined,
-        // making_cost starts at labor_cost; BOM editor will update it
-        making_cost: Number(formData.labor_cost),
+        is_active: formData.is_active,
         image_id,
         file_id,
+        // Edit mode: include pricing
+        ...(initialData ? {
+          labor_cost: Number(formData.labor_cost),
+          selling_price: Number(formData.selling_price),
+          making_cost: Number(formData.labor_cost) + editMaterialCost,
+        } : {
+          labor_cost: 0,
+          selling_price: 0,
+          making_cost: 0,
+        }),
       };
 
       if (initialData?.$id) {
         await updateProduct(initialData.$id, payload);
         toast("Product updated", "success");
         router.push(`/products/${initialData.$id}`);
+        router.refresh();
       } else {
         const created = await createProduct(payload);
-        toast("Product created — now add materials in the BOM editor", "success");
-        router.push(`/products/${created.$id}`);
+        toast("Product created — now add materials & set pricing", "success");
+        // Phase 2: stay on this page and show BOM + pricing inline
+        setCreatedProduct(created);
       }
-      router.refresh();
     } catch (err) {
       console.error(err);
       toast("Error saving product", "error");
@@ -107,6 +135,16 @@ export function ProductForm({ initialData }: ProductFormProps) {
       setIsSubmitting(false);
     }
   };
+
+  // Phase 2: show BOM editor inline after creation
+  if (createdProduct) {
+    return (
+      <Phase2View
+        createdProduct={createdProduct}
+        allInventoryItems={allInventoryItems}
+      />
+    );
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -203,23 +241,57 @@ export function ProductForm({ initialData }: ProductFormProps) {
           </div>
         </div>
 
-        {/* Pricing */}
-        <div className={styles.section}>
-          <h2>Pricing</h2>
-          <div className={styles.grid2}>
-            <div className={styles.field}>
-              <label htmlFor="labor_cost">Labor Cost (Rs) *</label>
-              <input required type="number" step="0.01" id="labor_cost" name="labor_cost" value={formData.labor_cost} onChange={handleChange} />
+        {/* Pricing — edit mode only; new products set pricing in Phase 2 */}
+        {initialData && (
+          <div className={styles.section}>
+            <h2>Pricing</h2>
+            <div className={styles.grid2}>
+              <div className={styles.field}>
+                <label htmlFor="labor_cost">Labor Cost (Rs) *</label>
+                <input required type="number" step="0.01" id="labor_cost" name="labor_cost" value={formData.labor_cost} onChange={handleChange} />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="selling_price">Selling Price (Rs) *</label>
+                <input required type="number" step="0.01" id="selling_price" name="selling_price" value={formData.selling_price} onChange={handleChange} />
+              </div>
             </div>
-            <div className={styles.field}>
-              <label htmlFor="selling_price">Selling Price (Rs) *</label>
-              <input required type="number" step="0.01" id="selling_price" name="selling_price" value={formData.selling_price} onChange={handleChange} />
+            <p className={styles.hint}>Making cost = labor cost + material cost from BOM.</p>
+            {/* Live pricing preview */}
+            <div className={styles.liveSummary}>
+              <div className={styles.liveRow}>
+                <span>Labor Cost</span>
+                <span>{formatCurrency(liveLaborCost)}</span>
+              </div>
+              {editMaterialCost > 0 && (
+                <div className={styles.liveRow}>
+                  <span>Material Cost</span>
+                  <span>{formatCurrency(editMaterialCost)}</span>
+                </div>
+              )}
+              <div className={styles.liveRow}>
+                <span>Making Cost</span>
+                <span>{formatCurrency(liveMakingCost)}</span>
+              </div>
+              <div className={`${styles.liveRow} ${styles.liveRowSelling}`}>
+                <span>Selling Price</span>
+                <span>{formatCurrency(liveSellingPrice)}</span>
+              </div>
+              <div className={styles.liveDivider} />
+              <div className={`${styles.liveRow} ${styles.liveRowProfit}`}>
+                <span>Profit</span>
+                <strong className={liveProfit < 0 ? styles.profitLoss : styles.profitGain}>
+                  {formatCurrency(liveProfit)}
+                </strong>
+              </div>
+              <div className={styles.liveRow}>
+                <span>Margin</span>
+                <strong className={liveMargin < 20 ? styles.marginLow : styles.marginGood}>
+                  {liveMargin.toFixed(1)}%
+                </strong>
+              </div>
             </div>
           </div>
-          <p className={styles.hint}>
-            Making cost = labor cost + material cost from BOM. You can set materials after saving on the product detail page.
-          </p>
-        </div>
+        )}
 
         {/* Dimensions */}
         <div className={styles.section}>
@@ -252,10 +324,208 @@ export function ProductForm({ initialData }: ProductFormProps) {
           <Link href="/products" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" disabled={isSubmitting} className={styles.submitBtn}>
             <Save size={18} />
-            {isSubmitting ? "Saving..." : "Save Product"}
+            {isSubmitting
+              ? "Saving..."
+              : initialData
+                ? "Save Product"
+                : "Create & Add Materials →"}
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ─── Phase 2: BOM + margin-based pricing after product creation ──────────────
+function Phase2View({
+  createdProduct,
+  allInventoryItems,
+}: {
+  createdProduct: Product;
+  allInventoryItems: InventoryItem[];
+}) {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  // BomEditor runs with laborCost=0 so onMakingCostChange returns pure material cost
+  const [materialCost, setMaterialCost] = useState(0);
+
+  // Pricing inputs
+  const [laborCost, setLaborCost] = useState("");
+  const [targetMargin, setTargetMargin] = useState("30");
+  const [pricingSaved, setPricingSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const numLabor = Number(laborCost) || 0;
+  const numMargin = Math.max(0, Math.min(99, Number(targetMargin) || 0));
+  const makingCost = materialCost + numLabor;
+  // selling price derived from margin: price = making_cost / (1 - margin/100)
+  const suggestedPrice = numMargin < 100 && makingCost > 0
+    ? makingCost / (1 - numMargin / 100)
+    : makingCost;
+  const profit = suggestedPrice - makingCost;
+  const effectiveMargin = suggestedPrice > 0 ? (profit / suggestedPrice) * 100 : 0;
+
+  const handleSavePricing = async () => {
+    setIsSaving(true);
+    try {
+      await updateProduct(createdProduct.$id, {
+        labor_cost: numLabor,
+        selling_price: Math.round(suggestedPrice * 100) / 100,
+        making_cost: makingCost,
+      });
+      setPricingSaved(true);
+      toast("Pricing saved", "success");
+    } catch {
+      toast("Failed to save pricing", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDone = async () => {
+    if (!pricingSaved) {
+      await handleSavePricing();
+    }
+    router.push(`/products/${createdProduct.$id}`);
+  };
+
+  return (
+    <div className={styles.phase2Wrapper}>
+      {/* Top bar */}
+      <header className={styles.phase2Header}>
+        <div className={styles.phase2TitleRow}>
+          <CheckCircle size={22} className={styles.successIcon} />
+          <h1>{createdProduct.name}</h1>
+          <span className={styles.phase2Cat}>{createdProduct.category}</span>
+        </div>
+        <div className={styles.phase2Actions}>
+          <Link href={`/products/${createdProduct.$id}/edit`} className={styles.editDetailsBtn}>
+            <Edit2 size={15} /> Edit Details
+          </Link>
+          <button
+            onClick={handleDone}
+            disabled={isSaving}
+            className={styles.doneBtn}
+          >
+            <CheckCircle size={15} />
+            {isSaving ? "Saving..." : "Save & View Product"}
+          </button>
+        </div>
+      </header>
+
+      <div className={styles.phase2Layout}>
+        {/* Left: image + pricing calculator */}
+        <aside className={styles.phase2Side}>
+          {createdProduct.image_id ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID}/files/${createdProduct.image_id}/preview?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}&width=400&height=400`}
+              alt={createdProduct.name}
+              className={styles.phase2Img}
+            />
+          ) : (
+            <div className={styles.phase2ImgPlaceholder}>
+              <Package size={36} />
+              <span>No photo</span>
+            </div>
+          )}
+
+          {/* Cost breakdown — live from BOM */}
+          <div className={styles.phase2PricingCard}>
+            <h3>Making Cost</h3>
+            <div className={styles.phase2Row}>
+              <span>Material Cost</span>
+              <strong>{formatCurrency(materialCost)}</strong>
+            </div>
+            <div className={styles.phase2Row}>
+              <span>Labor Cost</span>
+              <strong>{formatCurrency(numLabor)}</strong>
+            </div>
+            <div className={styles.phase2Divider} />
+            <div className={styles.phase2Row}>
+              <span>Total Making Cost</span>
+              <strong className={styles.phase2Selling}>{formatCurrency(makingCost)}</strong>
+            </div>
+          </div>
+
+          {/* Margin calculator */}
+          <div className={styles.phase2PricingCard}>
+            <h3>
+              <Calculator size={13} style={{ display: "inline", marginRight: 6 }} />
+              Pricing Calculator
+            </h3>
+
+            <div className={styles.calcField}>
+              <label>Labor Cost (Rs)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0"
+                value={laborCost}
+                onChange={e => { setLaborCost(e.target.value); setPricingSaved(false); }}
+              />
+            </div>
+
+            <div className={styles.calcField}>
+              <label>Target Profit Margin (%)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="99"
+                value={targetMargin}
+                onChange={e => { setTargetMargin(e.target.value); setPricingSaved(false); }}
+              />
+            </div>
+
+            <div className={styles.phase2Divider} />
+
+            <div className={styles.phase2Row}>
+              <span>Suggested Price</span>
+              <strong className={styles.phase2Selling}>{formatCurrency(suggestedPrice)}</strong>
+            </div>
+            <div className={styles.phase2Row}>
+              <span>Profit</span>
+              <strong className={profit < 0 ? styles.profitLoss : styles.profitGain}>
+                {formatCurrency(profit)}
+              </strong>
+            </div>
+            <div className={styles.phase2Row}>
+              <span>Margin</span>
+              <strong className={effectiveMargin < 20 ? styles.marginLow : styles.marginGood}>
+                {effectiveMargin.toFixed(1)}%
+              </strong>
+            </div>
+
+            {pricingSaved ? (
+              <div className={styles.savedBadge}>✓ Pricing saved</div>
+            ) : (
+              <button
+                className={styles.savePricingBtn}
+                onClick={handleSavePricing}
+                disabled={isSaving || makingCost === 0}
+              >
+                <Save size={14} />
+                {isSaving ? "Saving..." : "Save Pricing"}
+              </button>
+            )}
+          </div>
+        </aside>
+
+        {/* Right: BOM editor — labor=0 so onChange = pure material cost */}
+        <div className={styles.phase2Main}>
+          <BomEditor
+            productId={createdProduct.$id}
+            laborCost={0}
+            sellingPrice={Math.round(suggestedPrice * 100) / 100}
+            initialBom={[]}
+            allInventoryItems={allInventoryItems}
+            onMakingCostChange={setMaterialCost}
+          />
+        </div>
+      </div>
     </div>
   );
 }

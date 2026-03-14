@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { saveBusinessConfig, type BusinessConfig } from "@/lib/api/businessConfig";
 import { uploadFile, deleteFile } from "@/lib/api/storage";
 import { useToast } from "@/components/ui/ToastContext";
-import { Building2, FileText, Palette, Upload, X, Sun, Moon, Settings2, Download } from "lucide-react";
-import { getOrdersForExport, getCustomersForExport, getInvoicesForExport } from "@/lib/api/exports";
+import { Building2, FileText, Palette, Upload, X, Settings2, Download } from "lucide-react";
+import { getOrdersForExport, getCustomersForExport, getInvoicesForExport, getExpensesForExport } from "@/lib/api/exports";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import styles from "./SettingsForm.module.css";
@@ -25,8 +25,6 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
   const [exportingType, setExportingType] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl);
   const [logoUploading, setLogoUploading] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
   const [form, setForm] = useState({
     // Business Profile
     company_name: initialConfig.company_name || "",
@@ -40,6 +38,7 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
     company_reg_number: initialConfig.company_reg_number || "",
     // Invoice Defaults
     invoice_prefix: initialConfig.invoice_prefix || "INV",
+    quote_prefix:   initialConfig.quote_prefix   || "QUO",
     invoice_default_notes: initialConfig.invoice_default_notes || "",
     invoice_payment_terms: initialConfig.invoice_payment_terms || "",
     vat_enabled: initialConfig.vat_enabled ?? false,
@@ -51,12 +50,6 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
     // logo_id tracked separately
     logo_id: initialConfig.logo_id || "",
   });
-
-  // Sync theme from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("theme") as "dark" | "light" | null;
-    if (saved) setTheme(saved);
-  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -119,6 +112,7 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
         vat_number: form.vat_number || undefined,
         company_reg_number: form.company_reg_number || undefined,
         invoice_prefix: form.invoice_prefix || "INV",
+        quote_prefix:   form.quote_prefix   || "QUO",
         invoice_default_notes: form.invoice_default_notes || undefined,
         invoice_payment_terms: form.invoice_payment_terms || undefined,
         vat_enabled: form.vat_enabled,
@@ -135,18 +129,6 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    if (newTheme === "light") {
-      document.documentElement.classList.add("light-theme");
-    } else {
-      document.documentElement.classList.remove("light-theme");
-    }
-    toast(`Switched to ${newTheme} mode`, "info");
   };
 
   const downloadCSV = (data: Record<string, unknown>[], filename: string) => {
@@ -172,7 +154,7 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
     URL.revokeObjectURL(url);
   };
 
-  const handleExport = async (type: 'orders' | 'customers' | 'invoices') => {
+  const handleExport = async (type: 'orders' | 'customers' | 'invoices' | 'expenses') => {
     setExportingType(type);
     try {
       const date = new Date().toISOString().slice(0, 10);
@@ -182,9 +164,12 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
       } else if (type === 'customers') {
         const data = await getCustomersForExport();
         downloadCSV(data as Record<string, unknown>[], `customers_${date}.csv`);
-      } else {
+      } else if (type === 'invoices') {
         const data = await getInvoicesForExport();
         downloadCSV(data as Record<string, unknown>[], `invoices_${date}.csv`);
+      } else {
+        const data = await getExpensesForExport();
+        downloadCSV(data as Record<string, unknown>[], `expenses_${date}.csv`);
       }
       toast(`${type.charAt(0).toUpperCase() + type.slice(1)} exported`, "success");
     } catch {
@@ -319,6 +304,11 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
                 <label>Invoice Prefix</label>
                 <input name="invoice_prefix" value={form.invoice_prefix} onChange={handleChange} placeholder="INV" />
                 <span className={styles.hint}>Generated numbers: {form.invoice_prefix || "INV"}-2026-001</span>
+              </div>
+              <div className={styles.field}>
+                <label>Quote Prefix</label>
+                <input name="quote_prefix" value={form.quote_prefix} onChange={handleChange} placeholder="QUO" />
+                <span className={styles.hint}>Generated numbers: {form.quote_prefix || "QUO"}-2026-001</span>
               </div>
               <div className={styles.field}>
                 <label>Default Payment Terms</label>
@@ -481,6 +471,21 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
                   {exportingType === 'invoices' ? 'Exporting...' : 'Export CSV'}
                 </button>
               </div>
+
+              <div className={styles.exportCard}>
+                <div className={styles.exportCardInfo}>
+                  <h3>Expenses</h3>
+                  <p>All recorded expenses with amounts, categories, and vendors.</p>
+                </div>
+                <button
+                  className={styles.exportBtn}
+                  onClick={() => { void handleExport('expenses'); }}
+                  disabled={exportingType !== null}
+                >
+                  <Download size={15} />
+                  {exportingType === 'expenses' ? 'Exporting...' : 'Export CSV'}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -489,20 +494,7 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
         {activeSection === "appearance" && (
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>Appearance</h2>
-            <p className={styles.sectionDesc}>Customize the look of the application.</p>
-
-            <div className={styles.toggleRow}>
-              <div>
-                <p className={styles.toggleLabel}>Theme</p>
-                <p className={styles.toggleDesc}>
-                  Currently: <strong>{theme === "dark" ? "Dark Mode" : "Light Mode"}</strong>
-                </p>
-              </div>
-              <button className={styles.themeToggleBtn} onClick={toggleTheme}>
-                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                Switch to {theme === "dark" ? "Light" : "Dark"}
-              </button>
-            </div>
+            <p className={styles.sectionDesc}>The application uses dark mode.</p>
           </div>
         )}
 

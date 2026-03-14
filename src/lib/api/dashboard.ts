@@ -11,6 +11,15 @@ export interface DashboardStats {
   inProgressOrders: number;
   totalRevenue: number;
   unpaidRevenue: number;
+  collectedOrdersRevenue: number;
+  collectedOrdersCount: number;
+  totalExpenses: number;
+  netProfit: number;
+  // Fiscal-period filtered
+  fiscalRevenue: number;
+  fiscalExpenses: number;
+  fiscalNetProfit: number;
+  fiscalYearLabel: string;
   lowStockItems: LowStockItem[];
   recentOrders: RecentOrder[];
   recentInvoices: RecentInvoice[];
@@ -60,8 +69,29 @@ export async function getDashboardData(): Promise<DashboardStats> {
   const config = await getBusinessConfig();
   const globalThreshold = config.low_stock_threshold ?? 5;
 
+  // ── Fiscal year calculation ──────────────────────────────────────────
+  const now = new Date();
+  let fyStart: Date;
+  let fiscalYearLabel: string;
+
+  if (config.fiscal_year_type === 'nepali') {
+    // Nepal FY starts ~Jul 16. If we're before Jul 16 this year, FY started last year.
+    const fyStartThisYear = new Date(now.getFullYear(), 6, 16); // Jul 16
+    if (now >= fyStartThisYear) {
+      fyStart = fyStartThisYear;
+      fiscalYearLabel = `${now.getFullYear()}/${String(now.getFullYear() + 1).slice(2)}`;
+    } else {
+      fyStart = new Date(now.getFullYear() - 1, 6, 16);
+      fiscalYearLabel = `${now.getFullYear() - 1}/${String(now.getFullYear()).slice(2)}`;
+    }
+  } else {
+    fyStart = new Date(now.getFullYear(), 0, 1); // Jan 1
+    fiscalYearLabel = String(now.getFullYear());
+  }
+  const fyStartISO = fyStart.toISOString();
+
   // Parallel fetch of all collections needed
-  const [ordersRes, invoicesRes, inventoryRes, customersRes] = await Promise.all([
+  const [ordersRes, invoicesRes, inventoryRes, customersRes, expensesRes] = await Promise.all([
     databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.collections.orders,
@@ -82,6 +112,11 @@ export async function getDashboardData(): Promise<DashboardStats> {
       appwriteConfig.collections.customers,
       [Query.limit(500)]
     ),
+    databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.expenses,
+      [Query.limit(1000)]
+    ),
   ]);
 
   // Build a customer ID → name map for quick lookup
@@ -96,13 +131,45 @@ export async function getDashboardData(): Promise<DashboardStats> {
   const inProgressOrders = ordersRes.documents.filter(d => d.status === 'in_progress').length;
 
   // Revenue aggregations from invoices
-  const totalRevenue = invoicesRes.documents
+  const invoiceRevenue = invoicesRes.documents
     .filter(d => d.status === 'paid')
     .reduce((sum, d) => sum + (d.amount as number), 0);
 
   const unpaidRevenue = invoicesRes.documents
     .filter(d => d.status === 'sent' || d.status === 'partially_paid')
     .reduce((sum, d) => sum + (d.amount as number), 0);
+
+  // Directly collected orders (marked as paid without invoice)
+  const collectedOrders = ordersRes.documents.filter(d => d.status === 'paid');
+  const collectedOrdersRevenue = collectedOrders.reduce((sum, d) => sum + (d.total_price as number), 0);
+  const collectedOrdersCount = collectedOrders.length;
+
+  // Combined revenue
+  const totalRevenue = invoiceRevenue + collectedOrdersRevenue;
+
+  // Expense aggregations
+  const totalExpenses = expensesRes.documents
+    .reduce((sum, d) => sum + (d.amount as number), 0);
+
+  // Fiscal period aggregations
+  const fiscalInvoiceRevenue = invoicesRes.documents
+    .filter(d => d.status === 'paid' && d.$createdAt >= fyStartISO)
+    .reduce((sum, d) => sum + (d.amount as number), 0);
+
+  const fiscalCollectedRevenue = ordersRes.documents
+    .filter(d => d.status === 'paid' && d.$updatedAt >= fyStartISO)
+    .reduce((sum, d) => sum + (d.total_price as number), 0);
+
+  const fiscalRevenue = fiscalInvoiceRevenue + fiscalCollectedRevenue;
+
+  const fiscalExpenses = expensesRes.documents
+    .filter(d => {
+      const dateStr = (d.date as string) || (d.$createdAt as string);
+      return dateStr >= fyStartISO.substring(0, 10);
+    })
+    .reduce((sum, d) => sum + (d.amount as number), 0);
+
+  const fiscalNetProfit = fiscalRevenue - fiscalExpenses;
 
   // Low stock: use per-item threshold if set, else global default
   const lowStockItems: LowStockItem[] = inventoryRes.documents
@@ -160,6 +227,14 @@ export async function getDashboardData(): Promise<DashboardStats> {
     inProgressOrders,
     totalRevenue,
     unpaidRevenue,
+    collectedOrdersRevenue,
+    collectedOrdersCount,
+    totalExpenses,
+    netProfit: totalRevenue - totalExpenses,
+    fiscalRevenue,
+    fiscalExpenses,
+    fiscalNetProfit,
+    fiscalYearLabel,
     lowStockItems,
     recentOrders,
     recentInvoices,

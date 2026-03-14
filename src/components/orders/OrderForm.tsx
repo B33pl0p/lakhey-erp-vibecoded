@@ -26,40 +26,49 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // --- Type toggle ---
+  // --- Type toggle (UI only, not a submitted field) ---
   const [isProduct, setIsProduct] = useState<boolean>(initialData?.is_product ?? false);
+  // --- Meta flag: whether user manually overrode unit price auto-calc ---
+  const [unitPriceManual, setUnitPriceManual] = useState(false);
 
-  // --- Core state ---
-  const [customerId, setCustomerId] = useState(initialData?.customer_id || "");
-  const [productId, setProductId] = useState(initialData?.product_id || "");
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [status, setStatus] = useState<OrderStatus>(initialData?.status || "pending");
-  const [quantity, setQuantity] = useState(String(initialData?.quantity || 1));
-  const [unitPrice, setUnitPrice] = useState(String(initialData?.unit_price || ""));
-  const [unitPriceManual, setUnitPriceManual] = useState(false); // track if user overrode auto-calc
-  const [totalPrice, setTotalPrice] = useState(String(initialData?.total_price || ""));
-  const [deadline, setDeadline] = useState(
-    initialData?.deadline ? initialData.deadline.slice(0, 10) : ""
-  );
-  const [deliveryAddress, setDeliveryAddress] = useState(initialData?.delivery_address || "");
+  // --- All form fields in one object ---
+  const [form, setForm] = useState({
+    // Core
+    customerId:      initialData?.customer_id       || "",
+    productId:       initialData?.product_id        || "",
+    title:           initialData?.title             || "",
+    status:          (initialData?.status           || "pending") as OrderStatus,
+    quantity:        String(initialData?.quantity   || 1),
+    unitPrice:       String(initialData?.unit_price || ""),
+    deadline:        initialData?.deadline ? initialData.deadline.slice(0, 10) : "",
+    deliveryAddress: initialData?.delivery_address  || "",
+    // Custom job
+    filamentType:   ((initialData?.filament_type as FilamentType) || "") as FilamentType | "",
+    filamentColor:   initialData?.filament_color    || "",
+    isMulticolor:    initialData?.is_multicolor     ?? false,
+    isAssembled:     initialData?.is_assembled      ?? false,
+    isSinglePart:    initialData?.is_single_part    ?? true,
+    printX:          String(initialData?.print_x_mm               || ""),
+    printY:          String(initialData?.print_y_mm               || ""),
+    printZ:          String(initialData?.print_z_mm               || ""),
+    filamentWeight:  String(initialData?.filament_weight_grams    || ""),
+    filamentPpg:     String(initialData?.filament_price_per_gram  || ""),
+    customMaterial:  initialData?.custom_material   || "",
+    customNotes:     initialData?.custom_notes      || "",
+  });
 
-  // --- Custom-order specific ---
-  const [filamentType, setFilamentType] = useState<FilamentType | "">(
-    (initialData?.filament_type as FilamentType) || ""
-  );
-  const [filamentColor, setFilamentColor] = useState(initialData?.filament_color || "");
-  const [isMulticolor, setIsMulticolor] = useState(initialData?.is_multicolor ?? false);
-  const [isAssembled, setIsAssembled] = useState(initialData?.is_assembled ?? false);
-  const [isSinglePart, setIsSinglePart] = useState(initialData?.is_single_part ?? true);
-  const [printX, setPrintX] = useState(String(initialData?.print_x_mm || ""));
-  const [printY, setPrintY] = useState(String(initialData?.print_y_mm || ""));
-  const [printZ, setPrintZ] = useState(String(initialData?.print_z_mm || ""));
-  const [filamentWeight, setFilamentWeight] = useState(String(initialData?.filament_weight_grams || ""));
-  const [filamentPpg, setFilamentPpg] = useState(String(initialData?.filament_price_per_gram || ""));
-  const [customMaterial, setCustomMaterial] = useState(initialData?.custom_material || "");
-  const [customNotes, setCustomNotes] = useState(initialData?.custom_notes || "");
+  /** Single-field updater — keeps all other fields intact */
+  const setField = <K extends keyof typeof form>(key: K, value: typeof form[K]) =>
+    setForm(prev => ({ ...prev, [key]: value }));
 
-  // --- Files ---
+  // Destructure for reads — JSX value= bindings stay unchanged
+  const {
+    customerId, productId, title, status, quantity, unitPrice, deadline, deliveryAddress,
+    filamentType, filamentColor, isMulticolor, isAssembled, isSinglePart,
+    printX, printY, printZ, filamentWeight, filamentPpg, customMaterial, customNotes,
+  } = form;
+
+  // --- Files (kept separate — File objects are not plain serialisable data) ---
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -69,7 +78,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     if (!customerId || initialData?.delivery_address) return;
     const customer = customers.find(c => c.$id === customerId);
     if (customer?.address) {
-      setDeliveryAddress(customer.address);
+      setField("deliveryAddress", customer.address);
     }
   }, [customerId, customers, initialData?.delivery_address]);
 
@@ -78,9 +87,9 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     if (!isProduct || !productId) return;
     const product = products.find(p => p.$id === productId);
     if (product) {
-      setTitle(product.name);
+      setField("title", product.name);
       if (!unitPriceManual) {
-        setUnitPrice(String(product.selling_price));
+        setField("unitPrice", String(product.selling_price));
       }
     }
   }, [productId, isProduct, products, unitPriceManual]);
@@ -98,20 +107,18 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
   useEffect(() => {
     if (isProduct || unitPriceManual) return;
     const calc = calcFilamentUnitPrice();
-    if (calc !== null) setUnitPrice(calc);
+    if (calc !== null) setField("unitPrice", calc);
   }, [filamentWeight, filamentPpg, isProduct, unitPriceManual, calcFilamentUnitPrice]);
 
-  // --- Auto-calculate total_price ---
-  useEffect(() => {
-    const u = parseFloat(unitPrice);
-    const q = parseFloat(quantity);
-    if (!isNaN(u) && !isNaN(q) && u >= 0 && q > 0) {
-      setTotalPrice((u * q).toFixed(2));
-    }
-  }, [unitPrice, quantity]);
+  // --- Derived: total_price = unit_price × quantity (no state needed) ---
+  const u = parseFloat(unitPrice);
+  const q = parseFloat(quantity);
+  const totalPrice = (!isNaN(u) && !isNaN(q) && u >= 0 && q > 0)
+    ? (u * q).toFixed(2)
+    : "";
 
   const handleUnitPriceChange = (v: string) => {
-    setUnitPrice(v);
+    setField("unitPrice", v);
     setUnitPriceManual(true);
   };
 
@@ -248,7 +255,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
               <label>Customer *</label>
               <select
                 value={customerId}
-                onChange={e => setCustomerId(e.target.value)}
+                onChange={e => setField("customerId", e.target.value)}
                 className={errors.customerId ? styles.inputError : ""}
               >
                 <option value="">— Select customer —</option>
@@ -260,7 +267,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
             </div>
             <div className={styles.field}>
               <label>Status</label>
-              <select value={status} onChange={e => setStatus(e.target.value as OrderStatus)}>
+              <select value={status} onChange={e => setField("status", e.target.value as OrderStatus)}>
                 {ORDER_STATUSES.map(s => (
                   <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                 ))}
@@ -273,7 +280,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
             <textarea
               rows={2}
               value={deliveryAddress}
-              onChange={e => setDeliveryAddress(e.target.value)}
+              onChange={e => setField("deliveryAddress", e.target.value)}
               placeholder="Pre-filled from customer, or enter a different address"
             />
           </div>
@@ -285,7 +292,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
             <h2>Product</h2>
             <div className={styles.field}>
               <label>Select Product</label>
-              <select value={productId} onChange={e => setProductId(e.target.value)}>
+              <select value={productId} onChange={e => setField("productId", e.target.value)}>
                 <option value="">— Select product —</option>
                 {products.filter(p => p.is_active).map(p => (
                   <option key={p.$id} value={p.$id}>{p.name}</option>
@@ -303,7 +310,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
             <input
               type="text"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => setField("title", e.target.value)}
               placeholder={isProduct ? "Auto-filled from product" : "e.g. Custom Lamp for John"}
               className={errors.title ? styles.inputError : ""}
             />
@@ -317,7 +324,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={e => setQuantity(e.target.value)}
+                onChange={e => setField("quantity", e.target.value)}
                 className={errors.quantity ? styles.inputError : ""}
               />
               {errors.quantity && <span className={styles.error}>{errors.quantity}</span>}
@@ -351,7 +358,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
             <input
               type="date"
               value={deadline}
-              onChange={e => setDeadline(e.target.value)}
+              onChange={e => setField("deadline", e.target.value)}
             />
           </div>
         </div>
@@ -364,7 +371,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
               <div className={styles.grid2}>
                 <div className={styles.field}>
                   <label>Filament Type</label>
-                  <select value={filamentType} onChange={e => setFilamentType(e.target.value as FilamentType)}>
+                  <select value={filamentType} onChange={e => setField("filamentType", e.target.value as FilamentType)}>
                     <option value="">— Select —</option>
                     {FILAMENT_TYPES.map(t => (
                       <option key={t} value={t}>{t}</option>
@@ -376,7 +383,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                   <input
                     type="text"
                     value={filamentColor}
-                    onChange={e => setFilamentColor(e.target.value)}
+                    onChange={e => setField("filamentColor", e.target.value)}
                     placeholder="e.g. Matte Black"
                   />
                 </div>
@@ -390,7 +397,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                     min="0"
                     step="0.1"
                     value={filamentWeight}
-                    onChange={e => { setFilamentWeight(e.target.value); setUnitPriceManual(false); }}
+                    onChange={e => { setField("filamentWeight", e.target.value); setUnitPriceManual(false); }}
                     placeholder="e.g. 150"
                   />
                 </div>
@@ -401,7 +408,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                     min="0"
                     step="0.01"
                     value={filamentPpg}
-                    onChange={e => { setFilamentPpg(e.target.value); setUnitPriceManual(false); }}
+                    onChange={e => { setField("filamentPpg", e.target.value); setUnitPriceManual(false); }}
                     placeholder="e.g. 2.5"
                   />
                 </div>
@@ -418,7 +425,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                 <input
                   type="text"
                   value={customMaterial}
-                  onChange={e => setCustomMaterial(e.target.value)}
+                    onChange={e => setField("customMaterial", e.target.value)}
                   placeholder="e.g. Wood-fill PLA, Carbon fibre"
                 />
               </div>
@@ -429,29 +436,29 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
               <div className={styles.grid3}>
                 <div className={styles.field}>
                   <label>Width X (mm)</label>
-                  <input type="number" min="0" step="0.1" value={printX} onChange={e => setPrintX(e.target.value)} placeholder="X" />
+                  <input type="number" min="0" step="0.1" value={printX} onChange={e => setField("printX", e.target.value)} placeholder="X" />
                 </div>
                 <div className={styles.field}>
                   <label>Depth Y (mm)</label>
-                  <input type="number" min="0" step="0.1" value={printY} onChange={e => setPrintY(e.target.value)} placeholder="Y" />
+                  <input type="number" min="0" step="0.1" value={printY} onChange={e => setField("printY", e.target.value)} placeholder="Y" />
                 </div>
                 <div className={styles.field}>
                   <label>Height Z (mm)</label>
-                  <input type="number" min="0" step="0.1" value={printZ} onChange={e => setPrintZ(e.target.value)} placeholder="Z" />
+                  <input type="number" min="0" step="0.1" value={printZ} onChange={e => setField("printZ", e.target.value)} placeholder="Z" />
                 </div>
               </div>
 
               <div className={styles.checkboxRow}>
                 <label className={styles.checkLabel}>
-                  <input type="checkbox" checked={isMulticolor} onChange={e => setIsMulticolor(e.target.checked)} />
+                  <input type="checkbox" checked={isMulticolor} onChange={e => setField("isMulticolor", e.target.checked)} />
                   Multi-color print
                 </label>
                 <label className={styles.checkLabel}>
-                  <input type="checkbox" checked={isAssembled} onChange={e => setIsAssembled(e.target.checked)} />
+                  <input type="checkbox" checked={isAssembled} onChange={e => setField("isAssembled", e.target.checked)} />
                   Requires assembly
                 </label>
                 <label className={styles.checkLabel}>
-                  <input type="checkbox" checked={isSinglePart} onChange={e => setIsSinglePart(e.target.checked)} />
+                  <input type="checkbox" checked={isSinglePart} onChange={e => setField("isSinglePart", e.target.checked)} />
                   Single part (not multi-part job)
                 </label>
               </div>
@@ -461,7 +468,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                 <textarea
                   rows={3}
                   value={customNotes}
-                  onChange={e => setCustomNotes(e.target.value)}
+                  onChange={e => setField("customNotes", e.target.value)}
                   placeholder="Any specific instructions, infill %, supports, etc."
                 />
               </div>

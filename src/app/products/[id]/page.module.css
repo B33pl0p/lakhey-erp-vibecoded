@@ -167,7 +167,8 @@
 
 .price { color: var(--accent) !important; font-size: 1rem !important; }
 .marginGood { color: #10b981 !important; }
-.marginLow { color: #f59e0b !important; }
+.marginLow  { color: #f59e0b !important; }
+.profitLoss { color: #ef4444 !important; }
 
 .downloadLink {
   display: inline-block;

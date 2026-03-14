@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Order, OrderStatus } from "@/lib/api/orders";
 import { deleteOrder, updateOrderStatus } from "@/lib/api/orders";
 import { useToast } from "@/components/ui/ToastContext";
@@ -16,9 +17,10 @@ interface OrderTableProps {
   customerMap: Record<string, string>; // id → name
 }
 
-const STATUS_OPTIONS: OrderStatus[] = ["pending", "printing", "done", "delivered", "cancelled"];
+const STATUS_OPTIONS: OrderStatus[] = ["pending", "printing", "done", "delivered", "paid", "cancelled"];
 
 export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -32,6 +34,7 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
       await deleteOrder(deletingId);
       setOrders(prev => prev.filter(o => o.$id !== deletingId));
       toast("Order deleted", "success");
+      router.refresh();
     } catch {
       toast("Error deleting order", "error");
     } finally {
@@ -45,6 +48,7 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
       await updateOrderStatus(id, status);
       setOrders(prev => prev.map(o => o.$id === id ? { ...o, status } : o));
       toast("Status updated", "success");
+      router.refresh();
     } catch {
       toast("Error updating status", "error");
     } finally {
@@ -97,13 +101,14 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
               <th>Qty</th>
               <th>Total</th>
               <th>Deadline</th>
+              <th>Created</th>
               <th className={styles.actionsCell}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.emptyState}>
+                <td colSpan={9} className={styles.emptyState}>
                   <div className={styles.emptyContent}>
                     <ShoppingCart size={40} />
                     <p>No orders found.</p>
@@ -115,10 +120,14 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
                 const deadline = order.deadline
                   ? new Date(order.deadline).toLocaleDateString("en-NP")
                   : null;
+                const createdAt = new Date(order.$createdAt).toLocaleDateString("en-NP", {
+                  year: "numeric", month: "short", day: "numeric",
+                });
                 const isOverdue =
                   order.deadline &&
                   new Date(order.deadline) < new Date() &&
                   order.status !== "delivered" &&
+                  order.status !== "paid" &&
                   order.status !== "cancelled";
 
                 return (
@@ -154,6 +163,7 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
                     <td className={isOverdue ? styles.overdue : styles.muted}>
                       {deadline || "—"}
                     </td>
+                    <td className={styles.muted}>{createdAt}</td>
                     <td className={styles.actionsCell}>
                       <div className={styles.actions}>
                         <Link href={`/orders/${order.$id}/edit`} className={styles.editBtn} title="Edit">

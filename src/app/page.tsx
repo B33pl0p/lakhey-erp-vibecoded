@@ -2,7 +2,7 @@ import { getDashboardData } from "@/lib/api/dashboard";
 import { formatCurrency } from "@/lib/utils/currency";
 import Link from "next/link";
 import {
-  ShoppingCart, Users, TrendingUp, AlertTriangle,
+  ShoppingCart, Users, TrendingUp, TrendingDown, AlertTriangle,
   Clock, CheckCircle, Package, FileText, UserPlus,
 } from "lucide-react";
 import styles from "./page.module.css";
@@ -75,6 +75,9 @@ export default async function DashboardPage() {
             <p className={styles.statValue}>{formatCurrency(data.totalRevenue)}</p>
             <p className={styles.statSub}>
               <span style={{ color: "#d97706" }}>{formatCurrency(data.unpaidRevenue)} outstanding</span>
+              {data.collectedOrdersCount > 0 && (
+                <> {" · "} <span style={{ color: "#10b981" }}>{data.collectedOrdersCount} direct</span></>
+              )}
             </p>
           </div>
         </div>
@@ -105,6 +108,30 @@ export default async function DashboardPage() {
               {data.lowStockItems.length > 0
                 ? <span style={{ color: "#ef4444" }}>Items need restocking</span>
                 : <span style={{ color: "#10b981" }}>All stocked up</span>}
+            </p>
+          </div>
+        </div>
+
+        {/* P&L card — fiscal period */}
+        <div className={styles.statCard}>
+          <div
+            className={styles.statIcon}
+            style={{
+              background: data.fiscalNetProfit >= 0 ? "#10b98120" : "#ef444420",
+              color:      data.fiscalNetProfit >= 0 ? "#10b981"   : "#ef4444",
+            }}
+          >
+            {data.fiscalNetProfit >= 0 ? <TrendingUp size={22} /> : <TrendingDown size={22} />}
+          </div>
+          <div>
+            <p className={styles.statLabel}>Net P&L · FY {data.fiscalYearLabel}</p>
+            <p className={styles.statValue} style={{ color: data.fiscalNetProfit >= 0 ? "#10b981" : "#ef4444" }}>
+              {data.fiscalNetProfit < 0 ? "−" : ""}{formatCurrency(Math.abs(data.fiscalNetProfit))}
+            </p>
+            <p className={styles.statSub}>
+              <span style={{ color: "#10b981" }}>{formatCurrency(data.fiscalRevenue)} revenue</span>
+              {" · "}
+              <span style={{ color: "#ef4444" }}>−{formatCurrency(data.fiscalExpenses)} expenses</span>
             </p>
           </div>
         </div>

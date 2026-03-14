@@ -5,7 +5,7 @@ import { appwriteConfig } from '../appwrite/config';
 import { ID, Query } from 'node-appwrite';
 import { revalidatePath } from 'next/cache';
 
-export type OrderStatus = "pending" | "printing" | "done" | "delivered" | "cancelled";
+export type OrderStatus = "pending" | "printing" | "done" | "delivered" | "paid" | "cancelled";
 export type FilamentType = "PLA" | "PETG" | "ABS" | "TPU" | "ASA" | "Resin" | "Other";
 
 export interface Order {

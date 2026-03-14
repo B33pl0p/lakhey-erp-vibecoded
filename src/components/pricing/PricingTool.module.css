@@ -1,0 +1,214 @@
+.tool {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.selectAllRow {
+  display: flex;
+  gap: 0.4rem;
+}
+.selectAllBtn {
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-foreground, #6b7280);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.selectAllBtn:hover { background: rgba(128,128,128,0.08); color: var(--foreground); }
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--muted-foreground, #6b7280);
+  margin: 0 0 1.25rem;
+}
+
+/* ── Rate config ── */
+.sectionToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--foreground);
+  text-align: left;
+}
+.sectionTitleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.sectionTitle { font-size: 1rem; font-weight: 700; }
+.sectionHint  { font-size: 0.78rem; color: var(--muted-foreground, #6b7280); }
+
+.ratesBody {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.ratesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 620px) { .ratesGrid { grid-template-columns: 1fr; } }
+
+.ratesGroupTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin: 0 0 0.6rem;
+}
+.rateRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+}
+.rateUnit {
+  font-size: 0.78rem;
+  opacity: 0.6;
+}
+.rateInput {
+  width: 90px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  text-align: right;
+}
+.ratesHint {
+  font-size: 0.78rem;
+  color: var(--muted-foreground, #6b7280);
+  margin-top: 0.6rem;
+}
+
+.saveRatesBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.saveRatesBtn:hover { background: rgba(37,99,235,0.1); color: #2563eb; border-color: rgba(37,99,235,0.3); }
+.saveRatesBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Rate card selection ── */
+.rateCardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 620px) { .rateCardGrid { grid-template-columns: 1fr; } }
+
+.rateCardGroupTitle {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.55;
+  margin: 0 0 0.5rem;
+}
+
+.rateCardRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  margin-bottom: 0.4rem;
+  transition: background 0.12s, border-color 0.12s;
+  background: var(--background);
+}
+.rateCardRow:hover { background: rgba(37,99,235,0.04); border-color: rgba(37,99,235,0.25); }
+.rcExcluded { opacity: 0.35; }
+
+.rcLabel {
+  flex: 1;
+  font-size: 0.9rem;
+}
+.rcRate {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary, #2563eb);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.chk {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--primary, #2563eb);
+  flex-shrink: 0;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pdfBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary, #2563eb);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.pdfBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.pdfBtn:hover:not(:disabled) { opacity: 0.9; }

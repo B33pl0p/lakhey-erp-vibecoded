@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Invoice, InvoiceStatus } from "@/lib/api/invoices";
 import { deleteInvoice } from "@/lib/api/invoices";
 import { useToast } from "@/components/ui/ToastContext";
@@ -20,6 +21,7 @@ interface InvoiceTableProps {
 const STATUS_OPTIONS: InvoiceStatus[] = ["draft", "sent", "paid", "partially_paid"];
 
 export function InvoiceTable({ initialInvoices, customerMap, orderMap }: InvoiceTableProps) {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -32,6 +34,7 @@ export function InvoiceTable({ initialInvoices, customerMap, orderMap }: Invoice
       await deleteInvoice(deletingId);
       setInvoices(prev => prev.filter(i => i.$id !== deletingId));
       toast("Invoice deleted", "success");
+      router.refresh();
     } catch {
       toast("Error deleting invoice", "error");
     } finally {

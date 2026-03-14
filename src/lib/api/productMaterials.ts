@@ -76,7 +76,7 @@ export async function addBomLine(data: {
   quantity: number;
   unit_cost_override?: number | null;
   notes?: string;
-}) {
+}): Promise<{ $id: string }> {
   const { databases } = await createAdminClient();
 
   const payload = {
@@ -87,7 +87,7 @@ export async function addBomLine(data: {
     ...(data.notes && { notes: data.notes }),
   };
 
-  await databases.createDocument(
+  const doc = await databases.createDocument(
     appwriteConfig.databaseId,
     appwriteConfig.collections.productMaterials,
     ID.unique(),
@@ -95,6 +95,7 @@ export async function addBomLine(data: {
   );
 
   revalidatePath(`/products/${data.product_id}`);
+  return { $id: doc.$id };
 }
 
 export async function updateBomLine(

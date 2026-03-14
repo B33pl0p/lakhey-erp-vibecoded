@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { InventoryItem } from "@/lib/api/inventory";
 import { deleteInventoryItem } from "@/lib/api/inventory";
 import { getFilePreviewUrl } from "@/lib/api/storage";
@@ -12,6 +13,7 @@ import { formatCurrency } from "@/lib/utils/currency";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 
 export function InventoryTable({ initialItems }: { initialItems: InventoryItem[] }) {
+  const router = useRouter();
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -41,6 +43,7 @@ export function InventoryTable({ initialItems }: { initialItems: InventoryItem[]
       await deleteInventoryItem(deletingId);
       setItems(prev => prev.filter(i => i.$id !== deletingId));
       toast("Item deleted successfully", "success");
+      router.refresh();
     } catch {
       toast("Error deleting item. It might be used in a Product BOM.", "error");
     } finally {

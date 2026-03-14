@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Payment, PaymentMethod } from "@/lib/api/payments";
 import { addPayment, deletePayment } from "@/lib/api/payments";
 import { useToast } from "@/components/ui/ToastContext";
@@ -27,6 +28,7 @@ const emptyForm = {
 
 export function PaymentPanel({ invoiceId, customerId, invoiceAmount, initialPayments }: PaymentPanelProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [payments, setPayments] = useState<Payment[]>(initialPayments);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,6 +74,7 @@ export function PaymentPanel({ invoiceId, customerId, invoiceAmount, initialPaym
       setForm(emptyForm);
       setShowForm(false);
       toast("Payment recorded", "success");
+      router.refresh();
     } catch {
       toast("Error recording payment", "error");
     } finally {
@@ -85,6 +88,7 @@ export function PaymentPanel({ invoiceId, customerId, invoiceAmount, initialPaym
       await deletePayment(deletingId, invoiceId);
       setPayments(prev => prev.filter(p => p.$id !== deletingId));
       toast("Payment removed", "success");
+      router.refresh();
     } catch {
       toast("Error removing payment", "error");
     } finally {
