@@ -1,4 +1,5 @@
 import { Client, Account, Databases, Users, Storage } from 'node-appwrite';
+import { cookies } from 'next/headers';
 import { appwriteConfig } from './config';
 
 /**
@@ -29,5 +30,29 @@ export async function createAdminClient() {
     get storage() {
       return new Storage(client);
     }
+  };
+}
+
+/**
+ * Creates an Appwrite client scoped to the current user's session cookie.
+ * Use this in Server Components / Server Actions that act on behalf of the logged-in user.
+ */
+export async function createSessionClient() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get('appwrite-session');
+
+  if (!session?.value) {
+    throw new Error('No active session');
+  }
+
+  const client = new Client()
+    .setEndpoint(appwriteConfig.endpoint)
+    .setProject(appwriteConfig.projectId)
+    .setSession(session.value);
+
+  return {
+    get account() {
+      return new Account(client);
+    },
   };
 }

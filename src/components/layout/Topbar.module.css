@@ -74,6 +74,32 @@
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  color: rgba(243, 244, 246, 0.6);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.9rem;
+  border-radius: 99px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover:not(:disabled) {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.logoutBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1024px) {
   .mobileMenuBtn {
     display: block;
