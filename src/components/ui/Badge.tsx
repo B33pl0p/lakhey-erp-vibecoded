@@ -11,7 +11,11 @@ type BadgeStatus =
   | "draft"
   | "sent"
   | "paid"
-  | "partially_paid";
+  | "partially_paid"
+  // Quotations
+  | "accepted"
+  | "rejected"
+  | "expired";
 
 interface BadgeProps {
   status: BadgeStatus | string;

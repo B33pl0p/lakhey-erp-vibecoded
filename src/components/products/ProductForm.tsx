@@ -68,6 +68,11 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast("File too large — maximum size is 10 MB", "error");
+        e.target.value = "";
+        return;
+      }
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -184,7 +189,7 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
                 <div className={styles.uploadPrompt}>
                   <ImageIcon size={28} />
                   <p>Upload product photo</p>
-                  <span>JPG, PNG, WEBP up to 5MB</span>
+                  <span>JPG, PNG, WEBP up to 10 MB</span>
                 </div>
               )}
               <input
@@ -210,7 +215,15 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
               <input
                 type="file"
                 accept=".stl,.3mf,.obj,.gcode"
-                onChange={e => setStlFile(e.target.files?.[0] ?? null)}
+                onChange={e => {
+                  const f = e.target.files?.[0] ?? null;
+                  if (f && f.size > 10 * 1024 * 1024) {
+                    toast("File too large — maximum size is 10 MB", "error");
+                    e.target.value = "";
+                    return;
+                  }
+                  setStlFile(f);
+                }}
                 className={styles.fileInput}
                 title="Upload STL/3MF"
               />

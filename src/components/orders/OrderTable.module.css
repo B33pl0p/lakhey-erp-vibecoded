@@ -97,6 +97,110 @@
   font-variant-numeric: tabular-nums;
 }
 
+.advanceBadge {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #059669;
+  margin-top: 2px;
+}
+
+.convertBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.convertBtn:hover:not(:disabled) {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.convertBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.invoiceViewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #059669;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.invoiceViewBtn:hover {
+  background: #dcfce7;
+}
+
+.confirmInline {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
+}
+
+.confirmText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.confirmYes {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #dcfce7;
+  color: #15803d;
+  transition: background 0.15s;
+}
+
+.confirmYes:hover:not(:disabled) {
+  background: #bbf7d0;
+}
+
+.confirmYes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirmNo {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: #fee2e2;
+  color: #b91c1c;
+  transition: background 0.15s;
+}
+
+.confirmNo:hover {
+  background: #fecaca;
+}
+
 .overdue {
   color: #ef4444;
   font-weight: 600;

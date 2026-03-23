@@ -55,6 +55,9 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     filamentPpg:     String(initialData?.filament_price_per_gram  || ""),
     customMaterial:  initialData?.custom_material   || "",
     customNotes:     initialData?.custom_notes      || "",
+    // Advance payment
+    advancePaid:     String(initialData?.advance_paid ?? ""),
+    advanceNotes:    initialData?.advance_notes     || "",
   });
 
   /** Single-field updater — keeps all other fields intact */
@@ -66,6 +69,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     customerId, productId, title, status, quantity, unitPrice, deadline, deliveryAddress,
     filamentType, filamentColor, isMulticolor, isAssembled, isSinglePart,
     printX, printY, printZ, filamentWeight, filamentPpg, customMaterial, customNotes,
+    advancePaid, advanceNotes,
   } = form;
 
   // --- Files (kept separate — File objects are not plain serialisable data) ---
@@ -125,6 +129,11 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) {
+      if (f.size > 10 * 1024 * 1024) {
+        toast("File too large — maximum size is 10 MB", "error");
+        e.target.value = "";
+        return;
+      }
       setSelectedImage(f);
       setImagePreview(URL.createObjectURL(f));
     }
@@ -136,6 +145,9 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     if (!title.trim()) e.title = "Title is required";
     if (!quantity || Number(quantity) < 1) e.quantity = "Quantity must be at least 1";
     if (!unitPrice || Number(unitPrice) < 0) e.unitPrice = "Enter a valid unit price";
+    if (advancePaid && Number(advancePaid) < 0) e.advancePaid = "Advance cannot be negative";
+    if (advancePaid && totalPrice && Number(advancePaid) > parseFloat(totalPrice))
+      e.advancePaid = "Advance cannot exceed total price";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -174,6 +186,8 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
         delivery_address: deliveryAddress || undefined,
         file_id: fileId,
         image_id: imageId,
+        advance_paid: advancePaid !== "" ? parseFloat(advancePaid) : undefined,
+        advance_notes: advanceNotes || undefined,
       };
 
       if (isProduct) {
@@ -526,10 +540,53 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
                   type="file"
                   accept=".3mf,.stl,.obj,.step,.stp"
                   hidden
-                  onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                  onChange={e => {
+                    const f = e.target.files?.[0] || null;
+                    if (f && f.size > 10 * 1024 * 1024) {
+                      toast("File too large — maximum size is 10 MB", "error");
+                      e.target.value = "";
+                      return;
+                    }
+                    setSelectedFile(f);
+                  }}
                 />
               </label>
             )}
+          </div>
+        </div>
+
+        {/* ── Advance Payment ── */}
+        <div className={styles.section}>
+          <h2>Advance Payment</h2>
+          <p className={styles.calcHint}>Record any deposit or partial payment received at time of order.</p>
+          <div className={styles.grid2}>
+            <div className={styles.field}>
+              <label>Advance Paid (Rs)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={advancePaid}
+                onChange={e => setField("advancePaid", e.target.value)}
+                placeholder="0.00"
+                className={errors.advancePaid ? styles.inputError : ""}
+              />
+              {errors.advancePaid && <span className={styles.error}>{errors.advancePaid}</span>}
+              {advancePaid && totalPrice && Number(advancePaid) > 0 && (
+                <span className={styles.calcHint}>
+                  Balance due: Rs {(parseFloat(totalPrice) - parseFloat(advancePaid)).toFixed(2)}
+                </span>
+              )}
+            </div>
+            <div className={styles.field}>
+              <label>Payment Notes</label>
+              <input
+                type="text"
+                value={advanceNotes}
+                onChange={e => setField("advanceNotes", e.target.value)}
+                placeholder="e.g. Cash advance received"
+              />
+            </div>
           </div>
         </div>
 

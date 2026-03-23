@@ -14,6 +14,7 @@ import {
   Receipt,
   ListChecks,
   DollarSign,
+  Landmark,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { PriceCalculator } from "./PriceCalculator";
@@ -27,6 +28,7 @@ const navItems = [
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Quotations", href: "/quotations", icon: ClipboardList },
   { name: "Expenses",       href: "/expenses",  icon: Receipt },
+  { name: "Finance",        href: "/finance",   icon: Landmark },
   { name: "Job Tracker",    href: "/tasks",     icon: ListChecks },
   { name: "Pricing",        href: "/pricing",   icon: DollarSign },
   { name: "Settings",       href: "/settings",  icon: Settings },

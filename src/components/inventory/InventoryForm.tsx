@@ -46,6 +46,11 @@ export function InventoryForm({ initialData }: InventoryFormProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast("File too large — maximum size is 10 MB", "error");
+        e.target.value = "";
+        return;
+      }
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);

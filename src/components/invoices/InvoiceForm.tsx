@@ -25,10 +25,14 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const preselectedOrder = preselectedOrderId
+    ? orders.find(o => o.$id === preselectedOrderId)
+    : undefined;
+
   const [formData, setFormData] = useState({
     order_id: initialData?.order_id || preselectedOrderId || "",
-    customer_id: initialData?.customer_id || "",
-    amount: initialData?.amount?.toString() || "",
+    customer_id: initialData?.customer_id || preselectedOrder?.customer_id || "",
+    amount: initialData?.amount?.toString() || preselectedOrder?.total_price?.toString() || "",
     status: (initialData?.status || "draft") as InvoiceStatus,
     due_date: initialData?.due_date
       ? new Date(initialData.due_date).toISOString().split("T")[0]

@@ -65,6 +65,11 @@ export function SettingsForm({ initialConfig, initialLogoUrl }: SettingsFormProp
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast("File too large — maximum size is 10 MB", "error");
+      e.target.value = "";
+      return;
+    }
     setLogoUploading(true);
     try {
       const fd = new FormData();

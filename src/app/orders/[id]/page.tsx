@@ -90,6 +90,24 @@ export default async function OrderDetailPage({ params }: Props) {
             <span className={styles.statLabel}>Total Price</span>
             <span className={styles.totalValue}>{formatCurrency(order.total_price)}</span>
           </div>
+          {order.advance_paid != null && order.advance_paid > 0 && (
+            <>
+              <div className={styles.statRow}>
+                <span className={styles.statLabel}>Advance Paid</span>
+                <span className={styles.advancePaidValue}>{formatCurrency(order.advance_paid)}</span>
+              </div>
+              <div className={`${styles.statRow} ${styles.totalRow}`}>
+                <span className={styles.statLabel}>Balance Due</span>
+                <span className={styles.balanceDueValue}>{formatCurrency(Math.max(0, order.total_price - order.advance_paid))}</span>
+              </div>
+              {order.advance_notes && (
+                <div className={styles.statRow}>
+                  <span className={styles.statLabel}>Payment Notes</span>
+                  <span className={styles.statValue}>{order.advance_notes}</span>
+                </div>
+              )}
+            </>
+          )}
           {deadline && (
             <div className={styles.statRow}>
               <span className={styles.statLabel}>Deadline</span>

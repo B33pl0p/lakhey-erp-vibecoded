@@ -195,6 +195,18 @@
   font-size: 0.9rem;
 }
 
+.advancePaidValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.balanceDueValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d97806;
+}
+
 /* Customer / product cards */
 .infoBlock {
   display: flex;

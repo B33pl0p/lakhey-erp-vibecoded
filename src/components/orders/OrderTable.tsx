@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Order, OrderStatus } from "@/lib/api/orders";
-import { deleteOrder, updateOrderStatus } from "@/lib/api/orders";
+import { deleteOrder, updateOrderStatus, convertOrderToInvoice } from "@/lib/api/orders";
 import { useToast } from "@/components/ui/ToastContext";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Edit2, Trash2, Search, ShoppingCart } from "lucide-react";
+import { Edit2, Trash2, Search, ShoppingCart, FileText } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/currency";
 import styles from "./OrderTable.module.css";
@@ -15,18 +15,36 @@ import styles from "./OrderTable.module.css";
 interface OrderTableProps {
   initialOrders: Order[];
   customerMap: Record<string, string>; // id → name
+  orderInvoiceMap?: Record<string, string>; // orderId → invoiceId
 }
 
 const STATUS_OPTIONS: OrderStatus[] = ["pending", "printing", "done", "delivered", "paid", "cancelled"];
 
-export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
+export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }: OrderTableProps) {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [confirmOrderId, setConfirmOrderId] = useState<string | null>(null);
+  const [invoiceMap, setInvoiceMap] = useState<Record<string, string>>(orderInvoiceMap);
   const { toast } = useToast();
+
+  const handleConvertToInvoice = async (orderId: string) => {
+    setConfirmOrderId(null);
+    setConvertingId(orderId);
+    try {
+      const { invoiceId } = await convertOrderToInvoice(orderId);
+      setInvoiceMap(prev => ({ ...prev, [orderId]: invoiceId }));
+      toast("Invoice created successfully", "success");
+    } catch {
+      toast("Error creating invoice", "error");
+    } finally {
+      setConvertingId(null);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deletingId) return;
@@ -47,7 +65,11 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
     try {
       await updateOrderStatus(id, status);
       setOrders(prev => prev.map(o => o.$id === id ? { ...o, status } : o));
-      toast("Status updated", "success");
+      if (status === 'paid') {
+        toast("Order marked as paid — invoice auto-created", "success");
+      } else {
+        toast("Status updated", "success");
+      }
       router.refresh();
     } catch {
       toast("Error updating status", "error");
@@ -159,13 +181,57 @@ export function OrderTable({ initialOrders, customerMap }: OrderTableProps) {
                       <Badge status={order.status} />
                     </td>
                     <td className={styles.muted}>{order.quantity}</td>
-                    <td className={styles.price}>{formatCurrency(order.total_price)}</td>
+                    <td className={styles.price}>
+                      {formatCurrency(order.total_price)}
+                      {order.advance_paid != null && order.advance_paid > 0 && (
+                        <span className={styles.advanceBadge} title={`Advance: ${formatCurrency(order.advance_paid)}`}>
+                          Adv. {formatCurrency(order.advance_paid)}
+                        </span>
+                      )}
+                    </td>
                     <td className={isOverdue ? styles.overdue : styles.muted}>
                       {deadline || "—"}
                     </td>
                     <td className={styles.muted}>{createdAt}</td>
                     <td className={styles.actionsCell}>
                       <div className={styles.actions}>
+                        {invoiceMap[order.$id] ? (
+                          <Link
+                            href={`/invoices/${invoiceMap[order.$id]}`}
+                            className={styles.invoiceViewBtn}
+                            title="View Invoice"
+                          >
+                            <FileText size={14} />
+                            <span>Invoice</span>
+                          </Link>
+                        ) : confirmOrderId === order.$id ? (
+                          <span className={styles.confirmInline}>
+                            <span className={styles.confirmText}>Convert to invoice?</span>
+                            <button
+                              className={styles.confirmYes}
+                              disabled={convertingId === order.$id}
+                              onClick={() => handleConvertToInvoice(order.$id)}
+                            >
+                              {convertingId === order.$id ? "…" : "Yes"}
+                            </button>
+                            <button
+                              className={styles.confirmNo}
+                              onClick={() => setConfirmOrderId(null)}
+                            >
+                              No
+                            </button>
+                          </span>
+                        ) : (
+                          <button
+                            className={styles.convertBtn}
+                            title="Convert to Invoice"
+                            disabled={convertingId === order.$id}
+                            onClick={() => setConfirmOrderId(order.$id)}
+                          >
+                            <FileText size={14} />
+                            <span>→ Invoice</span>
+                          </button>
+                        )}
                         <Link href={`/orders/${order.$id}/edit`} className={styles.editBtn} title="Edit">
                           <Edit2 size={16} />
                         </Link>
