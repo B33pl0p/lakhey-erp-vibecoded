@@ -98,6 +98,7 @@ export function QuoteForm({ initialData, customers, vatRate, vatEnabled }: Quote
         include_vat: includeVat,
       };
 
+      router.refresh();
       if (initialData?.$id) {
         await updateQuotation(initialData.$id, payload);
         toast("Quotation updated", "success");
@@ -107,7 +108,6 @@ export function QuoteForm({ initialData, customers, vatRate, vatEnabled }: Quote
         toast("Quotation created", "success");
         router.push(`/quotations/${quote.$id}`);
       }
-      router.refresh();
     } catch (err) {
       console.error(err);
       toast("Error saving quotation", "error");

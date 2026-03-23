@@ -84,6 +84,7 @@ export function JobTaskForm({ initialData, customers }: JobTaskFormProps) {
         estimated_price:  estimatedPrice ? Number(estimatedPrice) : undefined,
       };
 
+      router.refresh();
       if (initialData?.$id) {
         await updateJobTask(initialData.$id, payload);
         toast("Task updated", "success");
@@ -93,7 +94,6 @@ export function JobTaskForm({ initialData, customers }: JobTaskFormProps) {
         toast("Task created", "success");
         router.push(`/tasks/${task.$id}`);
       }
-      router.refresh();
     } catch (err) {
       console.error(err);
       toast("Error saving task", "error");

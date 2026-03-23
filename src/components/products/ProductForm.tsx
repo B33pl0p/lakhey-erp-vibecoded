@@ -125,8 +125,8 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
       if (initialData?.$id) {
         await updateProduct(initialData.$id, payload);
         toast("Product updated", "success");
-        router.push(`/products/${initialData.$id}`);
         router.refresh();
+        router.push(`/products/${initialData.$id}`);
       } else {
         const created = await createProduct(payload);
         toast("Product created — now add materials & set pricing", "success");

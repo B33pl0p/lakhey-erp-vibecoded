@@ -90,8 +90,8 @@ export function InventoryForm({ initialData }: InventoryFormProps) {
         await createInventoryItem(payload);
         toast("Inventory item created successfully", "success");
       }
-      router.push("/inventory");
       router.refresh();
+      router.push("/inventory");
     } catch (error) {
       console.error(error);
       toast("Error saving inventory item", "error");

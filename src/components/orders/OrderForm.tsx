@@ -215,8 +215,8 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
         toast("Order created successfully", "success");
       }
 
-      router.push("/orders");
       router.refresh();
+      router.push("/orders");
     } catch (err) {
       console.error(err);
       toast("Error saving order", "error");

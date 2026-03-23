@@ -138,8 +138,8 @@ export function ExpenseForm({ initialData, inventoryItems = [] }: ExpenseFormPro
         }
       }
 
-      router.push("/expenses");
       router.refresh();
+      router.push("/expenses");
     } catch (err) {
       console.error(err);
       toast("Failed to save expense", "error");

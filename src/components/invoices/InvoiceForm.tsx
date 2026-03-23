@@ -84,6 +84,7 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
           amount: Number(formData.amount),
         });
         toast("Invoice updated", "success");
+        router.refresh();
         router.push(`/invoices/${initialData.$id}`);
       } else {
         const inv = await createInvoice({
@@ -95,9 +96,9 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
           notes: formData.notes || undefined,
         });
         toast("Invoice created", "success");
+        router.refresh();
         router.push(`/invoices/${inv.$id}`);
       }
-      router.refresh();
     } catch (err) {
       console.error(err);
       toast("Error saving invoice", "error");

@@ -59,8 +59,8 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
         await createCustomer(formData);
         toast("Customer created successfully", "success");
       }
-      router.push("/customers");
       router.refresh();
+      router.push("/customers");
     } catch (error) {
       console.error(error);
       toast("Error saving customer", "error");
