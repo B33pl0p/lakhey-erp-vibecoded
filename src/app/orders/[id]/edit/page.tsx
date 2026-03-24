@@ -4,6 +4,8 @@ import { getProducts } from "@/lib/api/products";
 import { OrderForm } from "@/components/orders/OrderForm";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ id: string }>;
 }

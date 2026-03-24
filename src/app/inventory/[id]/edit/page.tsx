@@ -2,6 +2,8 @@ import { InventoryForm } from "@/components/inventory/InventoryForm";
 import { getInventoryItem } from "@/lib/api/inventory";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 interface EditInventoryPageProps {
   params: Promise<{ id: string }>;
 }

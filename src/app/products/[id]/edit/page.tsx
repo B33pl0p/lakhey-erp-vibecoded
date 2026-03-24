@@ -2,6 +2,8 @@ import { ProductForm } from "@/components/products/ProductForm";
 import { getProduct } from "@/lib/api/products";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ id: string }>;
 }

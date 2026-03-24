@@ -2,6 +2,8 @@ import { getCustomer } from "@/lib/api/customers";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ id: string }>;
 }

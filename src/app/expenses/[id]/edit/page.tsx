@@ -3,6 +3,8 @@ import { getExpense } from "@/lib/api/expenses";
 import { getInventoryItems } from "@/lib/api/inventory";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 interface EditExpensePageProps {
   params: Promise<{ id: string }>;
 }
