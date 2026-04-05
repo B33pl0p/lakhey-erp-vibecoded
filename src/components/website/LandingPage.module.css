@@ -930,27 +930,52 @@
 
 @media (max-width: 760px) {
   .page {
-    --page-gutter: 0.8rem;
+    --page-gutter: 0.7rem;
     padding: 0 0 3.5rem;
-  }
-
-  .nav {
-    align-items: flex-start;
-    border-radius: 20px;
-  }
-
-  .navActions {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .navCta,
-  .secondaryBtn {
-    width: 100%;
   }
 
   .hero h1 {
     max-width: 100%;
+    font-size: clamp(1.95rem, 10vw, 2.6rem);
+    line-height: 1.02;
+  }
+
+  .heroCopy {
+    padding: 1rem 0.85rem;
+  }
+
+  .heroText {
+    margin-top: 0.95rem;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .heroActions {
+    width: 100%;
+    gap: 0.55rem;
+  }
+
+  .heroActions .primaryBtn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+  }
+
+  .section {
+    padding: 1.9rem 0;
+  }
+
+  .sectionIntro h2,
+  .pivot h2,
+  .aboutBlock h2 {
+    font-size: clamp(1.45rem, 8vw, 2rem);
+    line-height: 1.05;
+  }
+
+  .sectionIntro p,
+  .pivot p,
+  .aboutBlock p {
+    font-size: 0.95rem;
+    line-height: 1.55;
   }
 
   .heroVisual {

@@ -145,6 +145,24 @@
 }
 
 @media (max-width: 760px) {
+  .page {
+    padding: 1rem 0.72rem 2.4rem;
+  }
+
+  .topbar {
+    gap: 0.55rem;
+  }
+
+  .backLink,
+  .orderBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .infoCard {
+    padding: 0.85rem;
+  }
+
   .actions {
     width: 100%;
     flex-direction: column;

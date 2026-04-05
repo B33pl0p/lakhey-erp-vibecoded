@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   },
   description: "Enterprise resource planning for Lakhey Labs. Manage orders, customers, inventory and invoices.",
   icons: {
-    icon: "/logo2.svg",
-    shortcut: "/logo2.svg",
-    apple: "/logo2.svg",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/logo1.png",
   },
 };
 
