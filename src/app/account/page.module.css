@@ -129,6 +129,14 @@
 }
 
 @media (max-width: 860px) {
+  .page {
+    padding: 1rem 0.72rem 2.4rem;
+  }
+
+  .header h1 {
+    font-size: clamp(1.7rem, 8vw, 2.2rem);
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
