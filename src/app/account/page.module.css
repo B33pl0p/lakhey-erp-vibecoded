@@ -1,0 +1,139 @@
+.page {
+  --surface: rgba(30, 31, 36, 0.78);
+  --line: rgba(232, 57, 70, 0.24);
+  --text: #f3f4f6;
+  --muted: #b4b8c0;
+  --muted-strong: #d8dbe1;
+  --brand: #ff6b75;
+  --accent: #ff9aa1;
+  --accent-warm: #ffbe6a;
+  --ink: #1a0608;
+  min-height: 100vh;
+  padding: 2rem clamp(1rem, 4vw, 2.5rem) 3rem;
+  color: var(--text);
+  background: radial-gradient(circle at 14% 0%, rgba(230, 70, 86, 0.26), transparent 38%),
+    radial-gradient(circle at 88% 0%, rgba(189, 40, 55, 0.2), transparent 34%),
+    linear-gradient(180deg, #111214 0%, #14161a 55%, #101114 100%);
+}
+
+.shell {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+.header h1 {
+  margin-top: 0.45rem;
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  letter-spacing: -0.03em;
+}
+
+.header p {
+  margin-top: 0.7rem;
+  max-width: 62ch;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.kicker {
+  color: var(--accent-warm);
+  font-size: 0.75rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.grid {
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.card,
+.loggedInBox {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  padding: 1.05rem;
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+}
+
+.card h2,
+.loggedInBox h2 {
+  font-size: 1.22rem;
+}
+
+.card label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted-strong);
+}
+
+.card input {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  color: var(--text);
+  background: rgba(20, 21, 25, 0.9);
+  font: inherit;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.6rem 0.9rem;
+  min-height: 38px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.primaryBtn {
+  border: 0;
+  color: var(--ink);
+  background: linear-gradient(135deg, var(--accent), var(--brand));
+}
+
+.secondaryBtn {
+  color: var(--muted-strong);
+  background: rgba(30, 31, 36, 0.84);
+}
+
+.card .primaryBtn {
+  margin-top: 0.25rem;
+  min-width: 126px;
+}
+
+.loggedInBox p {
+  color: var(--muted);
+  display: grid;
+  gap: 0.2rem;
+}
+
+.loggedInActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.error {
+  margin-top: 0.9rem;
+  color: #ff9ea3;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card .primaryBtn {
+    width: 100%;
+  }
+}

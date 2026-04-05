@@ -1,10 +1,12 @@
 :root {
-  --background: #0f111a;
+  --background: #111214;
   --foreground: #f3f4f6;
-  --accent: #818cf8;
-  --accent-glow: rgba(129, 140, 248, 0.25);
-  --surface: rgba(30, 33, 43, 0.6);
-  --border: rgba(255, 255, 255, 0.1);
+  --accent: #e63946;
+  --accent-soft: #ff9aa1;
+  --accent-glow: rgba(230, 57, 70, 0.24);
+  --surface: rgba(30, 31, 36, 0.78);
+  --border: rgba(232, 57, 70, 0.24);
+  --sidebar-width: 260px;
   color-scheme: dark;
 }
 
@@ -17,14 +19,14 @@ html, body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
   background-image: 
-    radial-gradient(circle at 15% 50%, var(--accent-glow), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.15), transparent 25%);
+    radial-gradient(circle at 14% 0%, rgba(230, 70, 86, 0.22), transparent 32%),
+    radial-gradient(circle at 88% 8%, rgba(189, 40, 55, 0.16), transparent 32%);
   background-attachment: fixed;
 }
 
@@ -48,31 +50,40 @@ a {
 .appLayout {
   display: flex;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
 }
 
 .mainArea {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  margin-left: 260px; /* Width of sidebar */
+  margin-left: var(--sidebar-width);
   transition: margin-left 0.3s ease;
   min-height: 100vh;
-  width: calc(100% - 260px);
+  width: 100%;
+  min-width: 0;
 }
 
 .contentWrapper {
   flex: 1;
-  padding: 2rem;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(0.9rem, 2vw, 2rem);
   overflow-y: auto;
   position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0));
 }
 
 @media (max-width: 1024px) {
   .mainArea {
     margin-left: 0;
     width: 100%;
+  }
+
+  .contentWrapper {
+    padding: 1rem;
   }
 }
 
@@ -106,4 +117,3 @@ a {
     overflow: visible !important;
   }
 }
-

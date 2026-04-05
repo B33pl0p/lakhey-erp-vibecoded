@@ -106,7 +106,7 @@ export function QuoteTable({ initialQuotes, customerMap }: QuoteTableProps) {
                 return (
                   <tr key={q.$id}>
                     <td>
-                      <Link href={`/quotations/${q.$id}`} className={styles.quoteLink}>
+                      <Link href={`/admin/quotations/${q.$id}`} className={styles.quoteLink}>
                         {q.quote_number}
                       </Link>
                     </td>
@@ -124,14 +124,14 @@ export function QuoteTable({ initialQuotes, customerMap }: QuoteTableProps) {
                     </td>
                     <td>
                       <div className={styles.actions}>
-                        <Link href={`/quotations/${q.$id}`} className={styles.actionBtn} title="View">
+                        <Link href={`/admin/quotations/${q.$id}`} className={styles.actionBtn} title="View">
                           <Eye size={15} />
                         </Link>
-                        <Link href={`/quotations/${q.$id}/print`} className={styles.actionBtn} title="Print" target="_blank">
+                        <Link href={`/admin/quotations/${q.$id}/print`} className={styles.actionBtn} title="Print" target="_blank">
                           <Printer size={15} />
                         </Link>
                         {q.status === "draft" && (
-                          <Link href={`/quotations/${q.$id}/edit`} className={styles.actionBtn} title="Edit">
+                          <Link href={`/admin/quotations/${q.$id}/edit`} className={styles.actionBtn} title="Edit">
                             <Edit2 size={15} />
                           </Link>
                         )}

@@ -17,7 +17,7 @@ interface InvoiceFormProps {
   preselectedOrderId?: string;    // from ?order_id= query param
 }
 
-const STATUS_OPTIONS: InvoiceStatus[] = ["draft", "sent", "paid", "partially_paid"];
+const STATUS_OPTIONS: InvoiceStatus[] = ["draft", "sent"];
 
 export function InvoiceForm({ initialData, orders, customers, preselectedOrderId }: InvoiceFormProps) {
   const router = useRouter();
@@ -33,7 +33,11 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
     order_id: initialData?.order_id || preselectedOrderId || "",
     customer_id: initialData?.customer_id || preselectedOrder?.customer_id || "",
     amount: initialData?.amount?.toString() || preselectedOrder?.total_price?.toString() || "",
-    status: (initialData?.status || "draft") as InvoiceStatus,
+    status: (
+      initialData?.status === "draft" || initialData?.status === "sent"
+        ? initialData.status
+        : "draft"
+    ) as InvoiceStatus,
     due_date: initialData?.due_date
       ? new Date(initialData.due_date).toISOString().split("T")[0]
       : "",
@@ -78,14 +82,14 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
     try {
       if (initialData?.$id) {
         await updateInvoice(initialData.$id, {
-          status: formData.status,
+          status: canEditStatusManually ? formData.status : undefined,
           due_date: formData.due_date || undefined,
           notes: formData.notes || undefined,
           amount: Number(formData.amount),
         });
         toast("Invoice updated", "success");
         router.refresh();
-        router.push(`/invoices/${initialData.$id}`);
+        router.push(`/admin/invoices/${initialData.$id}`);
       } else {
         const inv = await createInvoice({
           order_id: formData.order_id,
@@ -97,7 +101,7 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
         });
         toast("Invoice created", "success");
         router.refresh();
-        router.push(`/invoices/${inv.$id}`);
+        router.push(`/admin/invoices/${inv.$id}`);
       }
     } catch (err) {
       console.error(err);
@@ -109,11 +113,12 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
 
   const selectedCustomer = customers.find(c => c.$id === formData.customer_id);
   const isEditing = !!initialData;
+  const canEditStatusManually = !initialData || initialData.status === "draft" || initialData.status === "sent";
 
   return (
     <div className={styles.wrapper}>
       <header className={styles.header}>
-        <Link href="/invoices" className={styles.backBtn}>
+        <Link href="/admin/invoices" className={styles.backBtn}>
           <ArrowLeft size={18} />
         </Link>
         <h1>{isEditing ? `Edit ${initialData.invoice_number}` : "New Invoice"}</h1>
@@ -177,13 +182,20 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
         {/* Status */}
         <div className={styles.field}>
           <label className={styles.label}>Status</label>
-          <select name="status" className={styles.select} value={formData.status} onChange={handleChange}>
-            {STATUS_OPTIONS.map(s => (
-              <option key={s} value={s}>
-                {s.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
-              </option>
-            ))}
-          </select>
+          {canEditStatusManually ? (
+            <select name="status" className={styles.select} value={formData.status} onChange={handleChange}>
+              {STATUS_OPTIONS.map(s => (
+                <option key={s} value={s}>
+                  {s.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className={styles.readonlyField}>
+              {initialData?.status?.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
+              {" · "}Auto-calculated from payment records
+            </div>
+          )}
         </div>
 
         {/* Due Date */}
@@ -212,7 +224,7 @@ export function InvoiceForm({ initialData, orders, customers, preselectedOrderId
         </div>
 
         <div className={styles.formActions}>
-          <Link href="/invoices" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/invoices" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
             {isSubmitting ? "Saving..." : isEditing ? "Save Changes" : "Create Invoice"}
           </button>

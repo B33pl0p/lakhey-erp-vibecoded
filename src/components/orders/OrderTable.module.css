@@ -307,3 +307,19 @@
   align-items: center;
   gap: 1rem;
 }
+
+@media (max-width: 900px) {
+  .toolbar {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .searchBox {
+    min-width: 100%;
+  }
+
+  .filterSelect {
+    width: 100%;
+    min-width: 0;
+  }
+}

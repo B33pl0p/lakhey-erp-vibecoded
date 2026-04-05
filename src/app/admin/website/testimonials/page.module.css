@@ -1,0 +1,127 @@
+.container {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  margin-top: 0.3rem;
+  color: rgba(180, 184, 192, 0.92);
+}
+
+.actions {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.iconBtn {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: rgba(30, 31, 36, 0.84);
+  color: #d8dbe1;
+}
+
+.primaryBtn {
+  border: 0;
+  color: #1a0608;
+  background: linear-gradient(135deg, var(--accent-soft, #ff9aa1), var(--accent));
+}
+
+.tableWrap {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+.table th,
+.table td {
+  padding: 0.72rem 0.8rem;
+  border-bottom: 1px solid rgba(232, 57, 70, 0.12);
+  vertical-align: top;
+}
+
+.table th {
+  text-align: left;
+  color: rgba(216, 219, 225, 0.82);
+  font-size: 0.83rem;
+}
+
+.table td {
+  color: #f3f4f6;
+}
+
+.quote {
+  max-width: 42ch;
+  color: rgba(180, 184, 192, 0.95);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.active {
+  color: #ffb6bc;
+  background: rgba(230, 57, 70, 0.15);
+}
+
+.inactive {
+  color: rgba(180, 184, 192, 0.8);
+  background: rgba(180, 184, 192, 0.12);
+}
+
+.rowActions {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.iconBtn {
+  min-width: 40px;
+  min-height: 34px;
+  padding: 0.42rem 0.55rem;
+  cursor: pointer;
+}
+
+.danger {
+  color: #ffb6bc;
+}
+
+.empty {
+  text-align: center;
+  color: rgba(180, 184, 192, 0.84);
+  padding: 1.3rem !important;
+}
+

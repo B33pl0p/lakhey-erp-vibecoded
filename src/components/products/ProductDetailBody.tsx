@@ -7,7 +7,7 @@ import type { Product } from "@/lib/api/products";
 import type { BomLine } from "@/lib/api/productMaterials";
 import type { InventoryItem } from "@/lib/api/inventory";
 import { Package } from "lucide-react";
-import styles from "@/app/products/[id]/page.module.css";
+import styles from "@/app/admin/products/[id]/page.module.css";
 
 interface Props {
   product: Product;
@@ -17,6 +17,7 @@ interface Props {
 
 export function ProductDetailBody({ product, initialBom, allInventoryItems }: Props) {
   const [makingCost, setMakingCost] = useState(product.making_cost);
+  const imageIds = product.image_ids?.length ? product.image_ids : (product.image_id ? [product.image_id] : []);
 
   const profitRs = product.selling_price - makingCost;
   const marginPct =
@@ -28,14 +29,29 @@ export function ProductDetailBody({ product, initialBom, allInventoryItems }: Pr
     <div className={styles.layout}>
       {/* Left: info cards */}
       <div className={styles.left}>
-        {/* Product image */}
-        {product.image_id ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID}/files/${product.image_id}/preview?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}&width=400&height=400`}
-            alt={product.name}
-            className={styles.productImage}
-          />
+        {/* Product images */}
+        {imageIds.length > 0 ? (
+          <div className={styles.imageGallery}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID}/files/${imageIds[0]}/preview?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}&width=700&height=700`}
+              alt={product.name}
+              className={styles.productImage}
+            />
+            {imageIds.length > 1 ? (
+              <div className={styles.thumbRow}>
+                {imageIds.slice(1).map((imageId) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={imageId}
+                    src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID}/files/${imageId}/preview?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}&width=220&height=220`}
+                    alt={`${product.name} thumbnail`}
+                    className={styles.thumbImage}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
         ) : (
           <div className={styles.imagePlaceholder}>
             <Package size={40} />
@@ -71,22 +87,6 @@ export function ProductDetailBody({ product, initialBom, allInventoryItems }: Pr
             </strong>
           </div>
         </div>
-
-        {/* Dimensions */}
-        {(product.height_mm || product.width_mm || product.depth_mm) && (
-          <div className={styles.card}>
-            <h3>Dimensions</h3>
-            <div className={styles.statRow}>
-              <span>Height</span><strong>{product.height_mm ?? "—"} mm</strong>
-            </div>
-            <div className={styles.statRow}>
-              <span>Width</span><strong>{product.width_mm ?? "—"} mm</strong>
-            </div>
-            <div className={styles.statRow}>
-              <span>Depth</span><strong>{product.depth_mm ?? "—"} mm</strong>
-            </div>
-          </div>
-        )}
 
         {/* STL file link */}
         {product.file_id && (

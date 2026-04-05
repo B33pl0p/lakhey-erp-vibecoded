@@ -145,9 +145,12 @@ export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }:
                 const createdAt = new Date(order.$createdAt).toLocaleDateString("en-NP", {
                   year: "numeric", month: "short", day: "numeric",
                 });
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+                const deadlineStart = order.deadline ? new Date(`${order.deadline}T00:00:00`) : null;
                 const isOverdue =
-                  order.deadline &&
-                  new Date(order.deadline) < new Date() &&
+                  deadlineStart &&
+                  deadlineStart < todayStart &&
                   order.status !== "delivered" &&
                   order.status !== "paid" &&
                   order.status !== "cancelled";
@@ -155,7 +158,7 @@ export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }:
                 return (
                   <tr key={order.$id}>
                     <td>
-                      <Link href={`/orders/${order.$id}`} className={styles.titleLink}>
+                      <Link href={`/admin/orders/${order.$id}`} className={styles.titleLink}>
                         {order.title}
                       </Link>
                     </td>
@@ -197,7 +200,7 @@ export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }:
                       <div className={styles.actions}>
                         {invoiceMap[order.$id] ? (
                           <Link
-                            href={`/invoices/${invoiceMap[order.$id]}`}
+                            href={`/admin/invoices/${invoiceMap[order.$id]}`}
                             className={styles.invoiceViewBtn}
                             title="View Invoice"
                           >
@@ -232,7 +235,7 @@ export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }:
                             <span>→ Invoice</span>
                           </button>
                         )}
-                        <Link href={`/orders/${order.$id}/edit`} className={styles.editBtn} title="Edit">
+                        <Link href={`/admin/orders/${order.$id}/edit`} className={styles.editBtn} title="Edit">
                           <Edit2 size={16} />
                         </Link>
                         <button

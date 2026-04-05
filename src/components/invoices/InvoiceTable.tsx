@@ -52,7 +52,8 @@ export function InvoiceTable({ initialInvoices, customerMap, orderMap }: Invoice
     return matchSearch && matchStatus;
   });
 
-  const now = new Date();
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
 
   return (
     <div className={styles.wrapper}>
@@ -98,14 +99,15 @@ export function InvoiceTable({ initialInvoices, customerMap, orderMap }: Invoice
             </thead>
             <tbody>
               {filtered.map(inv => {
+                const dueDateStart = inv.due_date ? new Date(`${inv.due_date}T00:00:00`) : null;
                 const isOverdue =
-                  inv.due_date &&
-                  new Date(inv.due_date) < now &&
+                  dueDateStart &&
+                  dueDateStart < todayStart &&
                   inv.status !== "paid";
                 return (
                   <tr key={inv.$id}>
                     <td>
-                      <Link href={`/invoices/${inv.$id}`} className={styles.invLink}>
+                      <Link href={`/admin/invoices/${inv.$id}`} className={styles.invLink}>
                         {inv.invoice_number}
                       </Link>
                     </td>
@@ -121,10 +123,10 @@ export function InvoiceTable({ initialInvoices, customerMap, orderMap }: Invoice
                     </td>
                     <td>
                       <div className={styles.actions}>
-                        <Link href={`/invoices/${inv.$id}`} className={styles.actionBtn} title="View">
+                        <Link href={`/admin/invoices/${inv.$id}`} className={styles.actionBtn} title="View">
                           <Eye size={16} />
                         </Link>
-                        <Link href={`/invoices/${inv.$id}/edit`} className={styles.actionBtn} title="Edit">
+                        <Link href={`/admin/invoices/${inv.$id}/edit`} className={styles.actionBtn} title="Edit">
                           <Edit2 size={16} />
                         </Link>
                         <button

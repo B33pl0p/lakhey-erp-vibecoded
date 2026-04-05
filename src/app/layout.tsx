@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Lakhey Labs ERP",
+  title: {
+    default: "Lakhey Labs",
+    template: "%s | Lakhey Labs",
+  },
   description: "Enterprise resource planning for Lakhey Labs. Manage orders, customers, inventory and invoices.",
+  icons: {
+    icon: "/logo2.svg",
+    shortcut: "/logo2.svg",
+    apple: "/logo2.svg",
+  },
 };
 
 import { ToastProvider } from "@/components/ui/ToastContext";
@@ -27,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
         <ToastProvider>
           <AppShell>
             {children}

@@ -66,7 +66,7 @@ export async function getBusinessConfig(): Promise<BusinessConfig> {
 
 export async function savePricingRates(rates: Record<string, number>): Promise<void> {
   await saveBusinessConfig({ pricing_rates: JSON.stringify(rates) });
-  revalidatePath('/pricing');
+  revalidatePath('/admin/pricing');
 }
 
 export async function saveBusinessConfig(data: Partial<BusinessConfig>): Promise<BusinessConfig> {
@@ -78,7 +78,8 @@ export async function saveBusinessConfig(data: Partial<BusinessConfig>): Promise
     "company_name", "tagline", "email", "phone", "address", "website", "logo_id",
     "pan_number", "vat_number", "company_reg_number",
     "vat_enabled", "vat_rate",
-    "invoice_prefix", "invoice_default_notes", "invoice_payment_terms",
+    "invoice_prefix", "quote_prefix", "invoice_default_notes", "invoice_payment_terms",
+    "low_stock_threshold", "default_order_deadline_days",
     "fiscal_year_type", "pricing_rates",
   ];
   for (const key of fields) {
@@ -101,7 +102,7 @@ export async function saveBusinessConfig(data: Partial<BusinessConfig>): Promise
       CONFIG_DOC_ID,
       payload
     );
-    revalidatePath('/settings');
+    revalidatePath('/admin/settings');
     return JSON.parse(JSON.stringify(doc)) as BusinessConfig;
   } catch {
     // Doesn't exist — create with fixed ID
@@ -111,7 +112,7 @@ export async function saveBusinessConfig(data: Partial<BusinessConfig>): Promise
       CONFIG_DOC_ID,
       payload
     );
-    revalidatePath('/settings');
+    revalidatePath('/admin/settings');
     return JSON.parse(JSON.stringify(doc)) as BusinessConfig;
   }
 }

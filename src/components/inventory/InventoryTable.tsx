@@ -139,7 +139,7 @@ export function InventoryTable({ initialItems }: { initialItems: InventoryItem[]
                   <td>{formatCurrency(item.unit_cost)}</td>
                   <td className={styles.supplierText}>{item.supplier || '-'}</td>
                   <td className={styles.actionsCell}>
-                    <Link href={`/inventory/${item.$id}/edit`} className={styles.editBtn}>
+                    <Link href={`/admin/inventory/${item.$id}/edit`} className={styles.editBtn}>
                       <Edit2 size={16} />
                     </Link>
                     <button onClick={() => setDeletingId(item.$id)} className={styles.deleteBtn}>

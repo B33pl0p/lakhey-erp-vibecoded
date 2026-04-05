@@ -26,17 +26,18 @@ function writeThemeCookie(theme: Theme) {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
-
-  // On mount: read saved preference from cookie, then apply
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "dark";
     const saved = readThemeCookie();
-    const initial = saved ?? (
-      window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"
-    );
-    applyTheme(initial);
-    setTheme(initial);
-  }, []);
+    if (saved) return saved;
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
+
+  // Keep DOM + cookie synced with state.
+  useEffect(() => {
+    applyTheme(theme);
+    writeThemeCookie(theme);
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {

@@ -76,7 +76,7 @@ export async function createJobTask(data: {
     ID.unique(),
     payload
   );
-  revalidatePath('/tasks');
+  revalidatePath('/admin/tasks');
   return JSON.parse(JSON.stringify(doc)) as JobTask;
 }
 
@@ -110,8 +110,8 @@ export async function updateJobTask(id: string, data: Partial<{
     id,
     payload
   );
-  revalidatePath('/tasks');
-  revalidatePath(`/tasks/${id}`);
+  revalidatePath('/admin/tasks');
+  revalidatePath(`/admin/tasks/${id}`);
   return JSON.parse(JSON.stringify(doc)) as JobTask;
 }
 
@@ -122,7 +122,7 @@ export async function deleteJobTask(id: string): Promise<void> {
     appwriteConfig.collections.jobTasks,
     id
   );
-  revalidatePath('/tasks');
+  revalidatePath('/admin/tasks');
 }
 
 // ── Quick status update (used by inline toggle) ────────────────────────────

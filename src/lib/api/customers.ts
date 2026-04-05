@@ -54,7 +54,7 @@ export async function createCustomer(data: Partial<Customer>) {
     payload
   );
 
-  revalidatePath('/customers');
+  revalidatePath('/admin/customers');
   return JSON.parse(JSON.stringify(doc)) as Customer;
 }
 
@@ -75,8 +75,8 @@ export async function updateCustomer(id: string, data: Partial<Customer>) {
     payload
   );
 
-  revalidatePath('/customers');
-  revalidatePath(`/customers/${id}`);
+  revalidatePath('/admin/customers');
+  revalidatePath(`/admin/customers/${id}`);
 }
 
 export async function deleteCustomer(id: string) {
@@ -88,5 +88,5 @@ export async function deleteCustomer(id: string) {
     id
   );
 
-  revalidatePath('/customers');
+  revalidatePath('/admin/customers');
 }

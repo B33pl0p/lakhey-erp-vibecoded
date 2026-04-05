@@ -102,11 +102,11 @@ export function QuoteForm({ initialData, customers, vatRate, vatEnabled }: Quote
       if (initialData?.$id) {
         await updateQuotation(initialData.$id, payload);
         toast("Quotation updated", "success");
-        router.push(`/quotations/${initialData.$id}`);
+        router.push(`/admin/quotations/${initialData.$id}`);
       } else {
         const quote = await createQuotation(payload);
         toast("Quotation created", "success");
-        router.push(`/quotations/${quote.$id}`);
+        router.push(`/admin/quotations/${quote.$id}`);
       }
     } catch (err) {
       console.error(err);
@@ -119,7 +119,7 @@ export function QuoteForm({ initialData, customers, vatRate, vatEnabled }: Quote
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <Link href="/quotations" className={styles.backBtn}>
+        <Link href="/admin/quotations" className={styles.backBtn}>
           <ArrowLeft size={18} />
         </Link>
         <h1>{initialData ? "Edit Quotation" : "New Quotation"}</h1>
@@ -278,7 +278,7 @@ export function QuoteForm({ initialData, customers, vatRate, vatEnabled }: Quote
 
         {/* ── Actions ── */}
         <div className={styles.formActions}>
-          <Link href="/quotations" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/quotations" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
             {isSubmitting ? "Saving…" : initialData ? "Update Quotation" : "Create Quotation"}
           </button>

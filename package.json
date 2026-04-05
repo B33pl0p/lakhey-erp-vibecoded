@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup:website": "node scripts/setup-website-content.mjs"
   },
   "dependencies": {
     "appwrite": "^23.0.0",

@@ -60,7 +60,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
         toast("Customer created successfully", "success");
       }
       router.refresh();
-      router.push("/customers");
+      router.push("/admin/customers");
     } catch (error) {
       console.error(error);
       toast("Error saving customer", "error");
@@ -73,7 +73,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <Link href="/customers" className={styles.backBtn}>
+          <Link href="/admin/customers" className={styles.backBtn}>
             <ArrowLeft size={18} />
           </Link>
           <h1>{initialData ? "Edit Customer" : "New Customer"}</h1>
@@ -148,7 +148,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
         </div>
 
         <div className={styles.formActions}>
-          <Link href="/customers" className={styles.cancelBtn}>
+          <Link href="/admin/customers" className={styles.cancelBtn}>
             Cancel
           </Link>
           <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>

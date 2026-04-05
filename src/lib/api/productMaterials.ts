@@ -94,7 +94,7 @@ export async function addBomLine(data: {
     payload
   );
 
-  revalidatePath(`/products/${data.product_id}`);
+  revalidatePath(`/admin/products/${data.product_id}`);
   return { $id: doc.$id };
 }
 
@@ -124,7 +124,7 @@ export async function updateBomLine(
     payload
   );
 
-  revalidatePath(`/products/${productId}`);
+  revalidatePath(`/admin/products/${productId}`);
 }
 
 export async function removeBomLine(lineId: string, productId: string) {
@@ -134,5 +134,5 @@ export async function removeBomLine(lineId: string, productId: string) {
     appwriteConfig.collections.productMaterials,
     lineId
   );
-  revalidatePath(`/products/${productId}`);
+  revalidatePath(`/admin/products/${productId}`);
 }

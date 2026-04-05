@@ -35,8 +35,9 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
     const loadImages = async () => {
       const urls: Record<string, string> = {};
       for (const p of initialProducts) {
-        if (p.image_id) {
-          urls[p.$id] = await getFilePreviewUrl(p.image_id, 60, 60);
+        const primaryImageId = p.image_ids?.[0] || p.image_id;
+        if (primaryImageId) {
+          urls[p.$id] = await getFilePreviewUrl(primaryImageId, 60, 60);
         }
       }
       setImageUrls(urls);
@@ -155,10 +156,10 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
                   </button>
                 </td>
                 <td className={styles.actionsCell}>
-                  <Link href={`/products/${p.$id}`} className={styles.viewBtn} title="View / BOM">
+                  <Link href={`/admin/products/${p.$id}`} className={styles.viewBtn} title="View / BOM">
                     <Eye size={16} />
                   </Link>
-                  <Link href={`/products/${p.$id}/edit`} className={styles.editBtn} title="Edit">
+                  <Link href={`/admin/products/${p.$id}/edit`} className={styles.editBtn} title="Edit">
                     <Edit2 size={16} />
                   </Link>
                   <button onClick={() => setDeletingId(p.$id)} className={styles.deleteBtn} title="Delete">

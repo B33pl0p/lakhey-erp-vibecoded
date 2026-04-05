@@ -138,3 +138,14 @@
 .emptyContent p {
   font-size: 1rem;
 }
+
+@media (max-width: 900px) {
+  .toolbar {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .searchBox {
+    min-width: 100%;
+  }
+}

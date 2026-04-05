@@ -1,0 +1,27 @@
+.wrap {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding-top: 1.15rem;
+}
+
+.footer {
+  border: 1px solid rgba(232, 57, 70, 0.24);
+  border-radius: 18px;
+  background: rgba(20, 21, 25, 0.82);
+  padding: 0.95rem 1rem;
+  display: grid;
+  justify-items: center;
+}
+
+.copy {
+  color: #b4b8c0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  text-align: center;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.copy span {
+  color: #d8dbe1;
+}

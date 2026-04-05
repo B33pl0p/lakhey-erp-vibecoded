@@ -1,13 +1,19 @@
 .page {
+  --surface: rgba(30, 31, 36, 0.82);
+  --border: rgba(232, 57, 70, 0.24);
+  --foreground: #f3f4f6;
+  --muted: #b4b8c0;
+  --accent: #ff6b75;
+  --accent-warm: #ff9aa1;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: var(--background);
+  background: linear-gradient(180deg, #111214 0%, #14161a 55%, #101114 100%);
   background-image:
-    radial-gradient(circle at 20% 50%, var(--accent-glow), transparent 30%),
-    radial-gradient(circle at 80% 20%, rgba(45, 212, 191, 0.12), transparent 30%);
+    radial-gradient(circle at 18% 10%, rgba(230, 70, 86, 0.26), transparent 35%),
+    radial-gradient(circle at 84% 20%, rgba(189, 40, 55, 0.18), transparent 35%);
 }
 
 .card {
@@ -18,7 +24,7 @@
   border-radius: 1rem;
   padding: 2.5rem 2rem;
   backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
 }
 
 .logo {
@@ -32,7 +38,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), rgba(45, 212, 191, 0.8));
+  background: linear-gradient(135deg, var(--accent-warm), var(--accent));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +77,7 @@
 .label {
   font-size: 0.85rem;
   font-weight: 500;
-  color: rgba(243, 244, 246, 0.7);
+  color: var(--muted);
 }
 
 .input {
@@ -79,7 +85,7 @@
   padding: 0.65rem 0.9rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(20, 21, 25, 0.9);
   color: var(--foreground);
   font-size: 0.95rem;
   outline: none;
@@ -91,7 +97,7 @@
 }
 
 .input::placeholder {
-  color: rgba(243, 244, 246, 0.3);
+  color: rgba(180, 184, 192, 0.5);
 }
 
 .errorMsg {
@@ -108,8 +114,8 @@
   padding: 0.7rem 1rem;
   border-radius: 0.5rem;
   border: none;
-  background: var(--accent);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-warm), var(--accent));
+  color: #1a0608;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;

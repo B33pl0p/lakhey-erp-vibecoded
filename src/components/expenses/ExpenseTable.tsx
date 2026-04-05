@@ -284,7 +284,7 @@ export function ExpenseTable({ initialExpenses, summary }: ExpenseTableProps) {
                   <div className={styles.actions}>
                     {expense.receipt_id && (
                       <a
-                        href={`/expenses/${expense.$id}`}
+                        href={`/admin/expenses/${expense.$id}`}
                         title="View receipt"
                         className={styles.iconBtn}
                       >
@@ -292,7 +292,7 @@ export function ExpenseTable({ initialExpenses, summary }: ExpenseTableProps) {
                       </a>
                     )}
                     <Link
-                      href={`/expenses/${expense.$id}/edit`}
+                      href={`/admin/expenses/${expense.$id}/edit`}
                       className={styles.iconBtn}
                       title="Edit"
                     >
@@ -312,7 +312,7 @@ export function ExpenseTable({ initialExpenses, summary }: ExpenseTableProps) {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className={styles.emptyRow}>
-                  No expenses found. <Link href="/expenses/new">Add one →</Link>
+                  No expenses found. <Link href="/admin/expenses/new">Add one →</Link>
                 </td>
               </tr>
             )}

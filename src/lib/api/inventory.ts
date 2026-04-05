@@ -75,7 +75,7 @@ export async function createInventoryItem(data: Partial<InventoryItem>) {
     payload
   );
   
-  revalidatePath('/inventory');
+  revalidatePath('/admin/inventory');
 }
 
 export async function updateInventoryItem(id: string, data: Partial<InventoryItem>) {
@@ -106,8 +106,8 @@ export async function updateInventoryItem(id: string, data: Partial<InventoryIte
     payload
   );
   
-  revalidatePath('/inventory');
-  revalidatePath(`/inventory/${id}/edit`);
+  revalidatePath('/admin/inventory');
+  revalidatePath(`/admin/inventory/${id}/edit`);
 }
 
 export async function adjustStock(id: string, currentStock: number, adjustment: number) {
@@ -122,7 +122,7 @@ export async function adjustStock(id: string, currentStock: number, adjustment: 
     { stock_qty: newStock }
   );
   
-  revalidatePath('/inventory');
+  revalidatePath('/admin/inventory');
 }
 
 export async function deleteInventoryItem(id: string) {
@@ -134,5 +134,5 @@ export async function deleteInventoryItem(id: string) {
     id
   );
   
-  revalidatePath('/inventory');
+  revalidatePath('/admin/inventory');
 }

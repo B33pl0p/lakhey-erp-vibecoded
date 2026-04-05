@@ -91,7 +91,7 @@ export function InventoryForm({ initialData }: InventoryFormProps) {
         toast("Inventory item created successfully", "success");
       }
       router.refresh();
-      router.push("/inventory");
+      router.push("/admin/inventory");
     } catch (error) {
       console.error(error);
       toast("Error saving inventory item", "error");
@@ -104,7 +104,7 @@ export function InventoryForm({ initialData }: InventoryFormProps) {
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <Link href="/inventory" className={styles.backBtn}>
+          <Link href="/admin/inventory" className={styles.backBtn}>
             <ArrowLeft size={18} />
           </Link>
           <h1>{initialData ? "Edit Item" : "New Item"}</h1>
@@ -237,7 +237,7 @@ export function InventoryForm({ initialData }: InventoryFormProps) {
         </div>
 
         <div className={styles.actions}>
-          <Link href="/inventory" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/inventory" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" disabled={isSubmitting} className={styles.submitBtn}>
             <Save size={18} />
             {isSubmitting ? "Saving..." : "Save Item"}

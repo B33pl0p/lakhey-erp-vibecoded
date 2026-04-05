@@ -17,12 +17,20 @@ export async function loginAction(email: string, password: string): Promise<{ er
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
     });
+    cookieStore.set('admin-session', '1', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
+    });
+    cookieStore.delete('customer-session');
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Invalid credentials';
     return { error: message };
   }
 
-  redirect('/');
+  redirect('/admin');
 }
 
 export async function logoutAction() {
@@ -35,6 +43,8 @@ export async function logoutAction() {
 
   const cookieStore = await cookies();
   cookieStore.delete('appwrite-session');
+  cookieStore.delete('admin-session');
+  cookieStore.delete('customer-session');
 
   redirect('/login');
 }

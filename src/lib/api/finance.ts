@@ -64,6 +64,8 @@ export interface FinanceData {
 export async function getFinanceData(): Promise<FinanceData> {
   const { databases } = await createAdminClient();
   const today = new Date();
+  const todayStart = new Date(today);
+  todayStart.setHours(0, 0, 0, 0);
 
   // Fetch everything in parallel
   const [customersRes, invoicesRes, paymentsRes, expensesRes, ordersRes] = await Promise.all([
@@ -181,7 +183,8 @@ export async function getFinanceData(): Promise<FinanceData> {
   for (const [custId, rec] of recMap) {
     const customer = customerMap.get(custId);
     const oldestDueDate = rec.dueDates.length > 0 ? rec.dueDates.sort()[0] : undefined;
-    const isOverdue = oldestDueDate ? new Date(oldestDueDate) < today : false;
+    const oldestDueDateStart = oldestDueDate ? new Date(`${oldestDueDate}T00:00:00`) : null;
+    const isOverdue = oldestDueDateStart ? oldestDueDateStart < todayStart : false;
     receivables.push({
       customerId: custId,
       customerName: customer?.name ?? '—',
@@ -228,12 +231,12 @@ export async function getFinanceData(): Promise<FinanceData> {
   const overdueInvoices: OverdueInvoice[] = [];
   for (const inv of allInvoices) {
     if (!inv.due_date || inv.status === 'paid') continue;
-    const dueDate = new Date(inv.due_date as string);
-    if (dueDate >= today) continue;
+    const dueDate = new Date(`${inv.due_date as string}T00:00:00`);
+    if (dueDate >= todayStart) continue;
     const paid = invoicePaidMap.get(inv.$id) ?? 0;
     const balance = (inv.amount as number) - paid;
     if (balance <= 0.01) continue;
-    const daysOverdue = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysOverdue = Math.floor((todayStart.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
     const custId = inv.customer_id as string;
     overdueInvoices.push({
       invoiceId: inv.$id,

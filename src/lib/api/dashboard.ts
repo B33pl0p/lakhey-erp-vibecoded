@@ -91,7 +91,7 @@ export async function getDashboardData(): Promise<DashboardStats> {
   const fyStartISO = fyStart.toISOString();
 
   // Parallel fetch of all collections needed
-  const [ordersRes, invoicesRes, inventoryRes, customersRes, expensesRes] = await Promise.all([
+  const [ordersRes, invoicesRes, paymentsRes, inventoryRes, customersRes, expensesRes] = await Promise.all([
     databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.collections.orders,
@@ -101,6 +101,11 @@ export async function getDashboardData(): Promise<DashboardStats> {
       appwriteConfig.databaseId,
       appwriteConfig.collections.invoices,
       [Query.limit(1000), Query.orderDesc('$createdAt')]
+    ),
+    databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.payments,
+      [Query.limit(2000), Query.orderDesc('$createdAt')]
     ),
     databases.listDocuments(
       appwriteConfig.databaseId,
@@ -128,7 +133,18 @@ export async function getDashboardData(): Promise<DashboardStats> {
   // Order aggregations
   const totalOrders = ordersRes.total;
   const pendingOrders = ordersRes.documents.filter(d => d.status === 'pending').length;
-  const inProgressOrders = ordersRes.documents.filter(d => d.status === 'in_progress').length;
+  const inProgressOrders = ordersRes.documents.filter(d => d.status === 'printing').length;
+
+  const invoicedOrderIds = new Set<string>();
+  for (const inv of invoicesRes.documents) {
+    if (inv.order_id) invoicedOrderIds.add(inv.order_id as string);
+  }
+
+  const invoicePaidMap = new Map<string, number>();
+  for (const p of paymentsRes.documents) {
+    const invoiceId = p.invoice_id as string;
+    invoicePaidMap.set(invoiceId, (invoicePaidMap.get(invoiceId) ?? 0) + (p.amount_paid as number));
+  }
 
   // Revenue aggregations from invoices
   const invoiceRevenue = invoicesRes.documents
@@ -137,10 +153,16 @@ export async function getDashboardData(): Promise<DashboardStats> {
 
   const unpaidRevenue = invoicesRes.documents
     .filter(d => d.status === 'sent' || d.status === 'partially_paid')
-    .reduce((sum, d) => sum + (d.amount as number), 0);
+    .reduce((sum, d) => {
+      const paid = invoicePaidMap.get(d.$id) ?? 0;
+      const remaining = (d.amount as number) - paid;
+      return sum + Math.max(0, remaining);
+    }, 0);
 
   // Directly collected orders (marked as paid without invoice)
-  const collectedOrders = ordersRes.documents.filter(d => d.status === 'paid');
+  const collectedOrders = ordersRes.documents.filter(
+    d => d.status === 'paid' && !invoicedOrderIds.has(d.$id)
+  );
   const collectedOrdersRevenue = collectedOrders.reduce((sum, d) => sum + (d.total_price as number), 0);
   const collectedOrdersCount = collectedOrders.length;
 
@@ -157,7 +179,7 @@ export async function getDashboardData(): Promise<DashboardStats> {
     .reduce((sum, d) => sum + (d.amount as number), 0);
 
   const fiscalCollectedRevenue = ordersRes.documents
-    .filter(d => d.status === 'paid' && d.$updatedAt >= fyStartISO)
+    .filter(d => d.status === 'paid' && d.$updatedAt >= fyStartISO && !invoicedOrderIds.has(d.$id))
     .reduce((sum, d) => sum + (d.total_price as number), 0);
 
   const fiscalRevenue = fiscalInvoiceRevenue + fiscalCollectedRevenue;
