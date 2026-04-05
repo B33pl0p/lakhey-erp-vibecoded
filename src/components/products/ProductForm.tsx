@@ -31,14 +31,16 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
     // Pricing — only used in edit mode
     labor_cost: initialData?.labor_cost ?? 0,
     selling_price: initialData?.selling_price ?? 0,
-    height_mm: initialData?.height_mm || "",
-    width_mm: initialData?.width_mm || "",
-    depth_mm: initialData?.depth_mm || "",
     is_active: initialData?.is_active ?? true,
   });
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [existingImageIds, setExistingImageIds] = useState<string[]>(
+    initialData?.image_ids?.length
+      ? initialData.image_ids
+      : (initialData?.image_id ? [initialData.image_id] : [])
+  );
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [stlFile, setStlFile] = useState<File | null>(null);
 
   // Phase 2: set after creation to enter BOM + pricing inline
@@ -66,16 +68,19 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast("File too large — maximum size is 10 MB", "error");
-        e.target.value = "";
-        return;
-      }
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const tooLarge = files.find((f) => f.size > 10 * 1024 * 1024);
+    if (tooLarge) {
+      toast(`"${tooLarge.name}" is too large — maximum size is 10 MB`, "error");
+      e.target.value = "";
+      return;
     }
+
+    setNewImageFiles((prev) => [...prev, ...files]);
+    setNewImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    e.target.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,14 +88,16 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
     setIsSubmitting(true);
 
     try {
-      let image_id = initialData?.image_id;
+      const uploadedImageIds: string[] = [];
       let file_id = initialData?.file_id;
 
-      if (imageFile) {
-        toast("Uploading image...", "info");
-        const fd = new FormData();
-        fd.append("file", imageFile);
-        image_id = await uploadFile(fd);
+      if (newImageFiles.length > 0) {
+        toast(`Uploading ${newImageFiles.length} image(s)...`, "info");
+        for (const imageFile of newImageFiles) {
+          const fd = new FormData();
+          fd.append("file", imageFile);
+          uploadedImageIds.push(await uploadFile(fd));
+        }
       }
 
       if (stlFile) {
@@ -100,15 +107,19 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
         file_id = await uploadFile(fd);
       }
 
+      const image_ids = [...existingImageIds, ...uploadedImageIds];
+      const imageIdsPayload =
+        image_ids.length > 0
+          ? image_ids
+          : (initialData ? [] : undefined);
+
       const payload: Partial<Product> = {
         name: formData.name,
         category: formData.category,
         description: formData.description,
-        height_mm: formData.height_mm ? Number(formData.height_mm) : undefined,
-        width_mm: formData.width_mm ? Number(formData.width_mm) : undefined,
-        depth_mm: formData.depth_mm ? Number(formData.depth_mm) : undefined,
         is_active: formData.is_active,
-        image_id,
+        image_ids: imageIdsPayload,
+        image_id: image_ids[0],
         file_id,
         // Edit mode: include pricing
         ...(initialData ? {
@@ -126,7 +137,7 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
         await updateProduct(initialData.$id, payload);
         toast("Product updated", "success");
         router.refresh();
-        router.push(`/products/${initialData.$id}`);
+        router.push(`/admin/products/${initialData.$id}`);
       } else {
         const created = await createProduct(payload);
         toast("Product created — now add materials & set pricing", "success");
@@ -155,7 +166,7 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <Link href="/products" className={styles.backBtn}>
+          <Link href="/admin/products" className={styles.backBtn}>
             <ArrowLeft size={18} />
           </Link>
           <h1>{initialData ? "Edit Product" : "New Product"}</h1>
@@ -169,35 +180,63 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
           <h2>Product Photo</h2>
           <div className={styles.mediaRow}>
             <div className={styles.mediaBox}>
-              {imagePreview || initialData?.image_id ? (
+              {existingImageIds.length > 0 || newImagePreviews.length > 0 ? (
                 <div className={styles.previewContainer}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imagePreview || `/api/storage?id=${initialData?.image_id}`}
-                    alt="Preview"
-                    className={styles.imagePreview}
-                  />
-                  <button
-                    type="button"
-                    className={styles.clearBtn}
-                    onClick={() => { setImageFile(null); setImagePreview(null); }}
-                  >
-                    Remove
-                  </button>
+                  <div className={styles.imageGrid}>
+                    {existingImageIds.map((imgId, idx) => (
+                      <div key={`${imgId}-${idx}`} className={styles.imageTile}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`/api/storage?id=${imgId}`}
+                          alt={`Product image ${idx + 1}`}
+                          className={styles.imagePreview}
+                        />
+                        <button
+                          type="button"
+                          className={styles.clearBtn}
+                          onClick={() => setExistingImageIds((prev) => prev.filter((id) => id !== imgId))}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+
+                    {newImagePreviews.map((previewUrl, idx) => (
+                      <div key={`${previewUrl}-${idx}`} className={styles.imageTile}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={previewUrl}
+                          alt={`New image ${idx + 1}`}
+                          className={styles.imagePreview}
+                        />
+                        <button
+                          type="button"
+                          className={styles.clearBtn}
+                          onClick={() => {
+                            setNewImageFiles((prev) => prev.filter((_, i) => i !== idx));
+                            setNewImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className={styles.uploadPrompt}>
                   <ImageIcon size={28} />
-                  <p>Upload product photo</p>
-                  <span>JPG, PNG, WEBP up to 10 MB</span>
+                  <p>Upload product photos</p>
+                  <span>Multiple JPG, PNG, WEBP files up to 10 MB each</span>
                 </div>
               )}
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleImageChange}
                 className={styles.fileInput}
-                title="Upload photo"
+                title="Upload photos"
               />
             </div>
 
@@ -306,25 +345,6 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
           </div>
         )}
 
-        {/* Dimensions */}
-        <div className={styles.section}>
-          <h2>Dimensions</h2>
-          <div className={styles.grid3}>
-            <div className={styles.field}>
-              <label htmlFor="height_mm">Height (mm)</label>
-              <input type="number" step="0.1" id="height_mm" name="height_mm" value={formData.height_mm} onChange={handleChange} />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="width_mm">Width (mm)</label>
-              <input type="number" step="0.1" id="width_mm" name="width_mm" value={formData.width_mm} onChange={handleChange} />
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="depth_mm">Depth (mm)</label>
-              <input type="number" step="0.1" id="depth_mm" name="depth_mm" value={formData.depth_mm} onChange={handleChange} />
-            </div>
-          </div>
-        </div>
-
         {/* Status */}
         <div className={styles.section}>
           <div className={styles.checkRow}>
@@ -334,7 +354,7 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
         </div>
 
         <div className={styles.actions}>
-          <Link href="/products" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/products" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" disabled={isSubmitting} className={styles.submitBtn}>
             <Save size={18} />
             {isSubmitting
@@ -368,6 +388,7 @@ function Phase2View({
   const [targetMargin, setTargetMargin] = useState("30");
   const [pricingSaved, setPricingSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const phase2ImageId = createdProduct.image_ids?.[0] || createdProduct.image_id;
 
   const numLabor = Number(laborCost) || 0;
   const numMargin = Math.max(0, Math.min(99, Number(targetMargin) || 0));
@@ -400,7 +421,7 @@ function Phase2View({
     if (!pricingSaved) {
       await handleSavePricing();
     }
-    router.push(`/products/${createdProduct.$id}`);
+    router.push(`/admin/products/${createdProduct.$id}`);
   };
 
   return (
@@ -413,7 +434,7 @@ function Phase2View({
           <span className={styles.phase2Cat}>{createdProduct.category}</span>
         </div>
         <div className={styles.phase2Actions}>
-          <Link href={`/products/${createdProduct.$id}/edit`} className={styles.editDetailsBtn}>
+          <Link href={`/admin/products/${createdProduct.$id}/edit`} className={styles.editDetailsBtn}>
             <Edit2 size={15} /> Edit Details
           </Link>
           <button
@@ -430,10 +451,10 @@ function Phase2View({
       <div className={styles.phase2Layout}>
         {/* Left: image + pricing calculator */}
         <aside className={styles.phase2Side}>
-          {createdProduct.image_id ? (
+          {phase2ImageId ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID}/files/${createdProduct.image_id}/preview?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}&width=400&height=400`}
+              src={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID}/files/${phase2ImageId}/preview?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}&width=400&height=400`}
               alt={createdProduct.name}
               className={styles.phase2Img}
             />

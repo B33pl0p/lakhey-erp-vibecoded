@@ -1,0 +1,54 @@
+.container {
+  display: grid;
+  gap: 1rem;
+}
+
+.header h1 {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  margin-top: 0.35rem;
+  color: rgba(216, 219, 225, 0.8);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.card h2 {
+  font-size: 1.03rem;
+}
+
+.card p {
+  color: rgba(180, 184, 192, 0.9);
+  line-height: 1.5;
+}
+
+.iconWrap {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #ffb6bc;
+}
+
+.open {
+  margin-top: 0.2rem;
+  color: #ff9aa1;
+  font-weight: 700;
+}

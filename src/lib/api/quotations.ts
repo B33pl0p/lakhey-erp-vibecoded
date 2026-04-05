@@ -33,32 +33,55 @@ export interface Quote {
   $updatedAt: string;
 }
 
-// ── Number generator ─────────────────────────────────────────────────────────
-
-export async function generateQuoteNumber(): Promise<string> {
-  const { databases } = await createAdminClient();
-  const config = await getBusinessConfig();
-  const prefix = config.quote_prefix || "QUO";
-
-  let year: number;
-  if (config.fiscal_year_type === 'nepali') {
+function getSequenceYear(fiscalYearType: 'calendar' | 'nepali' | undefined): number {
+  if (fiscalYearType === 'nepali') {
     const now = new Date();
     const m = now.getMonth();
     const d = now.getDate();
-    year = (m > 6 || (m === 6 && d >= 16)) ? now.getFullYear() : now.getFullYear() - 1;
-  } else {
-    year = new Date().getFullYear();
+    return (m > 6 || (m === 6 && d >= 16)) ? now.getFullYear() : now.getFullYear() - 1;
+  }
+  return new Date().getFullYear();
+}
+
+async function getNextQuoteSequence(prefix: string, year: number): Promise<number> {
+  const { databases } = await createAdminClient();
+  const prefixToken = `${prefix}-${year}-`;
+  let cursor: string | undefined;
+  let maxSeq = 0;
+
+  while (true) {
+    const queries = [Query.limit(100), Query.orderAsc("$id")];
+    if (cursor) queries.push(Query.cursorAfter(cursor));
+
+    const page = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.quotations,
+      queries
+    );
+
+    for (const d of page.documents) {
+      const quoteNumber = d.quote_number as string | undefined;
+      if (!quoteNumber || !quoteNumber.startsWith(prefixToken)) continue;
+      const seqPart = quoteNumber.slice(prefixToken.length);
+      const seq = Number(seqPart);
+      if (Number.isFinite(seq) && seq > maxSeq) maxSeq = seq;
+    }
+
+    if (page.documents.length < 100) break;
+    cursor = page.documents[page.documents.length - 1].$id;
   }
 
-  const response = await databases.listDocuments(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.quotations,
-    [Query.limit(500)]
-  );
-  const count = response.documents.filter((d) =>
-    (d.quote_number as string).startsWith(`${prefix}-${year}-`)
-  ).length;
-  const seq = String(count + 1).padStart(3, "0");
+  return maxSeq + 1;
+}
+
+// ── Number generator ─────────────────────────────────────────────────────────
+
+export async function generateQuoteNumber(): Promise<string> {
+  const config = await getBusinessConfig();
+  const prefix = config.quote_prefix || "QUO";
+  const year = getSequenceYear(config.fiscal_year_type);
+  const nextSeq = await getNextQuoteSequence(prefix, year);
+  const seq = String(nextSeq).padStart(3, "0");
   return `${prefix}-${year}-${seq}`;
 }
 
@@ -97,30 +120,58 @@ export async function createQuotation(data: {
   include_vat?: boolean;
 }): Promise<Quote> {
   const { databases } = await createAdminClient();
-  const quote_number = await generateQuoteNumber();
+  const config = await getBusinessConfig();
+  const prefix = config.quote_prefix || "QUO";
+  const year = getSequenceYear(config.fiscal_year_type);
+  const baseSeq = await getNextQuoteSequence(prefix, year);
+  let lastError: unknown = null;
 
-  const payload: Record<string, unknown> = {
-    quote_number,
-    customer_id: data.customer_id,
-    title: data.title,
-    line_items: JSON.stringify(data.line_items),
-    subtotal: Number(data.subtotal),
-    vat_amount: Number(data.vat_amount),
-    grand_total: Number(data.grand_total),
-    status: data.status ?? "draft",
-    include_vat: data.include_vat ?? false,
-  };
-  if (data.notes) payload.notes = data.notes;
-  if (data.valid_until) payload.valid_until = data.valid_until;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const quote_number = `${prefix}-${year}-${String(baseSeq + attempt).padStart(3, "0")}`;
+    const existing = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.quotations,
+      [Query.equal("quote_number", quote_number), Query.limit(1)]
+    );
+    if (existing.total > 0) continue;
 
-  const doc = await databases.createDocument(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.quotations,
-    ID.unique(),
-    payload
-  );
-  revalidatePath('/quotations');
-  return JSON.parse(JSON.stringify(doc)) as Quote;
+    const payload: Record<string, unknown> = {
+      quote_number,
+      customer_id: data.customer_id,
+      title: data.title,
+      line_items: JSON.stringify(data.line_items),
+      subtotal: Number(data.subtotal),
+      vat_amount: Number(data.vat_amount),
+      grand_total: Number(data.grand_total),
+      status: data.status ?? "draft",
+      include_vat: data.include_vat ?? false,
+    };
+    if (data.notes) payload.notes = data.notes;
+    if (data.valid_until) payload.valid_until = data.valid_until;
+
+    try {
+      const doc = await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.quotations,
+        ID.unique(),
+        payload
+      );
+      revalidatePath('/admin/quotations');
+      return JSON.parse(JSON.stringify(doc)) as Quote;
+    } catch (err) {
+      lastError = err;
+      const message = err instanceof Error ? err.message.toLowerCase() : "";
+      const retryableConflict =
+        message.includes("already exists") ||
+        message.includes("duplicate") ||
+        message.includes("unique");
+      if (!retryableConflict) throw err;
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Unable to create quotation after multiple quote-number collision retries.");
 }
 
 export async function updateQuotation(id: string, data: {
@@ -157,8 +208,8 @@ export async function updateQuotation(id: string, data: {
     id,
     payload
   );
-  revalidatePath('/quotations');
-  revalidatePath(`/quotations/${id}`);
+  revalidatePath('/admin/quotations');
+  revalidatePath(`/admin/quotations/${id}`);
   return JSON.parse(JSON.stringify(doc)) as Quote;
 }
 
@@ -169,13 +220,17 @@ export async function deleteQuotation(id: string): Promise<void> {
     appwriteConfig.collections.quotations,
     id
   );
-  revalidatePath('/quotations');
+  revalidatePath('/admin/quotations');
 }
 
 // ── Convert accepted quote → Order ───────────────────────────────────────────
 
 export async function convertQuoteToOrder(quoteId: string): Promise<{ orderId: string }> {
   const quote = await getQuotation(quoteId);
+
+  if (quote.converted_order_id) {
+    return { orderId: quote.converted_order_id };
+  }
 
   const items: QuoteLineItem[] = JSON.parse(quote.line_items || "[]");
   const itemsSummary = items
@@ -199,7 +254,7 @@ export async function convertQuoteToOrder(quoteId: string): Promise<{ orderId: s
     converted_order_id: order.$id,
   });
 
-  revalidatePath('/orders');
-  revalidatePath('/quotations');
+  revalidatePath('/admin/orders');
+  revalidatePath('/admin/quotations');
   return { orderId: order.$id };
 }

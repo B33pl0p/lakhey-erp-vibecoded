@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const session = request.cookies.get('appwrite-session');
+  const adminSession = request.cookies.get('admin-session');
   const { pathname } = request.nextUrl;
 
   const isPublicPath = pathname === '/login';
-  const hasSession = !!session?.value;
+  const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/');
+  const hasAdminSession = !!session?.value && adminSession?.value === '1';
 
-  if (!hasSession && !isPublicPath) {
+  if (!hasAdminSession && isAdminPath) {
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (hasSession && isPublicPath) {
-    return NextResponse.redirect(new URL('/', request.url));
+  if (hasAdminSession && isPublicPath) {
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   return NextResponse.next();

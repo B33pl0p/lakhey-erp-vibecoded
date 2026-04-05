@@ -88,11 +88,11 @@ export function JobTaskForm({ initialData, customers }: JobTaskFormProps) {
       if (initialData?.$id) {
         await updateJobTask(initialData.$id, payload);
         toast("Task updated", "success");
-        router.push(`/tasks/${initialData.$id}`);
+        router.push(`/admin/tasks/${initialData.$id}`);
       } else {
         const task = await createJobTask(payload);
         toast("Task created", "success");
-        router.push(`/tasks/${task.$id}`);
+        router.push(`/admin/tasks/${task.$id}`);
       }
     } catch (err) {
       console.error(err);
@@ -105,7 +105,7 @@ export function JobTaskForm({ initialData, customers }: JobTaskFormProps) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <Link href="/tasks" className={styles.backBtn}>
+        <Link href="/admin/tasks" className={styles.backBtn}>
           <ArrowLeft size={18} />
         </Link>
         <h1>{initialData ? "Edit Task" : "New Job Task"}</h1>
@@ -231,7 +231,7 @@ export function JobTaskForm({ initialData, customers }: JobTaskFormProps) {
 
         {/* ── Actions ── */}
         <div className={styles.formActions}>
-          <Link href="/tasks" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/tasks" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
             {isSubmitting ? "Saving…" : initialData ? "Update Task" : "Create Task"}
           </button>

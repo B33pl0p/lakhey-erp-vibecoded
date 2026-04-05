@@ -188,3 +188,17 @@
   color: #6b7280;
   padding: 3rem 1rem !important;
 }
+
+@media (max-width: 900px) {
+  .toolbar {
+    padding: 1rem;
+  }
+
+  .searchBox {
+    min-width: 100%;
+  }
+
+  .filterSelect {
+    width: 100%;
+  }
+}

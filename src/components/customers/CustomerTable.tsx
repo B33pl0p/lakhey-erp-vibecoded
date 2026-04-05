@@ -79,7 +79,7 @@ export function CustomerTable({ initialCustomers }: { initialCustomers: Customer
               filtered.map(customer => (
                 <tr key={customer.$id}>
                   <td>
-                    <Link href={`/customers/${customer.$id}`} className={styles.nameLink}>
+                    <Link href={`/admin/customers/${customer.$id}`} className={styles.nameLink}>
                       {customer.name}
                     </Link>
                   </td>
@@ -88,7 +88,7 @@ export function CustomerTable({ initialCustomers }: { initialCustomers: Customer
                   <td className={styles.muted}>{customer.address || "—"}</td>
                   <td className={styles.actionsCell}>
                     <div className={styles.actions}>
-                      <Link href={`/customers/${customer.$id}/edit`} className={styles.editBtn} title="Edit">
+                      <Link href={`/admin/customers/${customer.$id}/edit`} className={styles.editBtn} title="Edit">
                         <Edit2 size={16} />
                       </Link>
                       <button

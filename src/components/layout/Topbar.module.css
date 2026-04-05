@@ -1,6 +1,6 @@
 .topbar {
   height: 70px;
-  background: var(--surface);
+  background: linear-gradient(180deg, rgba(32, 33, 38, 0.9), rgba(27, 28, 33, 0.86));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -17,6 +17,10 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+}
+
+.notifWrap {
+  position: relative;
 }
 
 .mobileMenuBtn {
@@ -46,19 +50,124 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .iconButton:hover {
-  background: var(--border);
+  background: rgba(230, 57, 70, 0.12);
   transform: scale(1.05);
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1a0608;
+  background: linear-gradient(135deg, var(--accent-soft, #ff9aa1), var(--accent));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.notifPanel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(360px, 92vw);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(32, 33, 38, 0.95), rgba(26, 27, 31, 0.95));
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+  padding: 0.65rem;
+  z-index: 60;
+}
+
+.notifHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.smallBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(30, 31, 36, 0.84);
+  color: #d8dbe1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.notifMeta {
+  margin-top: 0.35rem;
+  color: rgba(180, 184, 192, 0.86);
+  font-size: 0.82rem;
+}
+
+.notifList {
+  margin-top: 0.55rem;
+  display: grid;
+  gap: 0.38rem;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.notifItem {
+  display: grid;
+  gap: 0.12rem;
+  border: 1px solid rgba(232, 57, 70, 0.16);
+  border-radius: 10px;
+  padding: 0.5rem 0.55rem;
+  background: rgba(30, 31, 36, 0.72);
+}
+
+.notifType {
+  color: #ff9aa1;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.notifTitle {
+  color: #f3f4f6;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.notifSub {
+  color: rgba(180, 184, 192, 0.88);
+  font-size: 0.82rem;
+}
+
+.empty {
+  color: rgba(180, 184, 192, 0.86);
+  font-size: 0.86rem;
+  padding: 0.4rem;
 }
 
 .newBtn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--accent);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-soft, #ff9aa1), var(--accent));
+  color: #1a0608;
   border: none;
   padding: 0.6rem 1.2rem;
   border-radius: 99px;
@@ -71,7 +180,7 @@
 
 .newBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 6px 16px rgba(230, 57, 70, 0.38);
 }
 
 .logoutBtn {
@@ -79,7 +188,7 @@
   align-items: center;
   gap: 0.4rem;
   background: transparent;
-  color: rgba(243, 244, 246, 0.6);
+  color: rgba(216, 219, 225, 0.72);
   border: 1px solid var(--border);
   padding: 0.5rem 0.9rem;
   border-radius: 99px;
@@ -90,9 +199,9 @@
 }
 
 .logoutBtn:hover:not(:disabled) {
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.08);
+  color: #ffb6bc;
+  border-color: rgba(230, 57, 70, 0.5);
+  background: rgba(230, 57, 70, 0.12);
 }
 
 .logoutBtn:disabled {
@@ -102,16 +211,41 @@
 
 @media (max-width: 1024px) {
   .mobileMenuBtn {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .topbar {
+    padding: 0 1rem;
+  }
+
+  .left, .right {
+    gap: 0.75rem;
+  }
+
+  .notifPanel {
+    right: -20px;
+  }
+
+  .newBtn span,
+  .logoutBtn span {
+    display: none;
+  }
+
+  .newBtn,
+  .logoutBtn {
+    padding: 0.55rem;
+    border-radius: 10px;
   }
 }
 
 @media (max-width: 600px) {
-  .newBtn span {
-    display: none;
+  .pageTitle {
+    font-size: 1.05rem;
   }
-  .newBtn {
-    padding: 0.6rem;
-    border-radius: 50%;
+
+  .topbar {
+    height: 64px;
   }
 }

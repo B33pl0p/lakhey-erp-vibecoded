@@ -61,8 +61,9 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
   });
 
   /** Single-field updater — keeps all other fields intact */
-  const setField = <K extends keyof typeof form>(key: K, value: typeof form[K]) =>
+  const setField = useCallback(<K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
+  }, []);
 
   // Destructure for reads — JSX value= bindings stay unchanged
   const {
@@ -84,7 +85,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     if (customer?.address) {
       setField("deliveryAddress", customer.address);
     }
-  }, [customerId, customers, initialData?.delivery_address]);
+  }, [customerId, customers, initialData?.delivery_address, setField]);
 
   // --- Auto-fill title + unit_price from product (catalog) ---
   useEffect(() => {
@@ -96,7 +97,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
         setField("unitPrice", String(product.selling_price));
       }
     }
-  }, [productId, isProduct, products, unitPriceManual]);
+  }, [productId, isProduct, products, unitPriceManual, setField]);
 
   // --- Auto-calculate unit_price from filament fields (custom) ---
   const calcFilamentUnitPrice = useCallback(() => {
@@ -112,7 +113,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     if (isProduct || unitPriceManual) return;
     const calc = calcFilamentUnitPrice();
     if (calc !== null) setField("unitPrice", calc);
-  }, [filamentWeight, filamentPpg, isProduct, unitPriceManual, calcFilamentUnitPrice]);
+  }, [filamentWeight, filamentPpg, isProduct, unitPriceManual, calcFilamentUnitPrice, setField]);
 
   // --- Derived: total_price = unit_price × quantity (no state needed) ---
   const u = parseFloat(unitPrice);
@@ -216,7 +217,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
       }
 
       router.refresh();
-      router.push("/orders");
+      router.push("/admin/orders");
     } catch (err) {
       console.error(err);
       toast("Error saving order", "error");
@@ -229,7 +230,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
     <div className={styles.wrapper}>
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <Link href="/orders" className={styles.backBtn}>
+          <Link href="/admin/orders" className={styles.backBtn}>
             <ArrowLeft size={18} />
           </Link>
           <h1>{initialData ? "Edit Order" : "New Order"}</h1>
@@ -591,7 +592,7 @@ export function OrderForm({ initialData, customers, products }: OrderFormProps) 
         </div>
 
         <div className={styles.formActions}>
-          <Link href="/orders" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/orders" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
             {isSubmitting ? "Saving…" : initialData ? "Save Changes" : "Create Order"}
           </button>

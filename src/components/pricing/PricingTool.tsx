@@ -98,7 +98,7 @@ export function PricingTool({ business, initialRates }: PricingToolProps) {
       ...business,
     };
     sessionStorage.setItem("pricing_print_data", JSON.stringify(data));
-    window.open("/pricing/print", "_blank");
+    window.open("/admin/pricing/print", "_blank");
   };
 
   const anySelected = RATE_ITEMS.some(r => included[r.id]);

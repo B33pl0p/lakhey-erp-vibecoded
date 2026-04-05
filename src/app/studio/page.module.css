@@ -1,0 +1,210 @@
+.page {
+  --surface: rgba(30, 31, 36, 0.78);
+  --line: rgba(232, 57, 70, 0.24);
+  --text: #f3f4f6;
+  --muted: #b4b8c0;
+  --muted-strong: #d8dbe1;
+  --brand: #ff6b75;
+  --accent: #ff9aa1;
+  --accent-warm: #ffbe6a;
+  --ink: #1a0608;
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(230, 70, 86, 0.26), transparent 38%),
+    radial-gradient(circle at 88% 0%, rgba(189, 40, 55, 0.2), transparent 34%),
+    linear-gradient(180deg, #111214 0%, #14161a 55%, #101114 100%);
+  padding: 1.1rem clamp(0.75rem, 2.1vw, 2rem) 3.5rem;
+  position: relative;
+}
+
+.bgImage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: linear-gradient(180deg, rgba(255, 190, 106, 0.04), rgba(24, 10, 12, 0.12)),
+    linear-gradient(120deg, rgba(230, 70, 86, 0.12), rgba(154, 28, 39, 0.08)),
+    url("/chatgpt-nepal-bg.png");
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: soft-light;
+  opacity: 0.34;
+}
+
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: linear-gradient(to right, rgba(231, 89, 101, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(231, 89, 101, 0.12) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+.topbar,
+.hero,
+.section {
+  position: relative;
+  z-index: 1;
+  width: min(1500px, 100%);
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid var(--line);
+  background: rgba(20, 21, 25, 0.86);
+  border-radius: 999px;
+  padding: 0.68rem 0.95rem;
+}
+
+.brand {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted-strong);
+}
+
+.backLink {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--muted-strong);
+  background: rgba(30, 31, 36, 0.84);
+}
+
+.hero {
+  padding: 3rem 0 2rem;
+}
+
+.kicker {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin-top: 0.75rem;
+  font-size: clamp(2rem, 6vw, 5rem);
+  line-height: 0.93;
+  letter-spacing: -0.04em;
+}
+
+.hero p {
+  margin-top: 1rem;
+  max-width: 68ch;
+  color: var(--muted);
+}
+
+.section {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  margin-top: 1rem;
+}
+
+.section h2 {
+  font-size: clamp(1.3rem, 2.8vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.sectionText {
+  margin-top: 0.55rem;
+  color: var(--muted);
+}
+
+.timeline {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.8rem;
+}
+
+.timeline article {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(27, 29, 34, 0.84);
+  padding: 0.92rem;
+}
+
+.timeline span {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--accent-warm);
+}
+
+.timeline h3 {
+  margin-top: 0.55rem;
+}
+
+.timeline p {
+  margin-top: 0.4rem;
+  color: var(--muted);
+}
+
+.form {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.36rem;
+  color: var(--muted-strong);
+  font-size: 0.92rem;
+}
+
+.form input,
+.form select,
+.form textarea {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(20, 21, 25, 0.9);
+  color: var(--text);
+  padding: 0.66rem 0.72rem;
+  font: inherit;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.form button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  border: none;
+  border-radius: 999px;
+  padding: 0.74rem 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--brand));
+  color: var(--ink);
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    border-radius: 16px;
+  }
+
+  .timeline,
+  .form {
+    grid-template-columns: 1fr;
+  }
+}

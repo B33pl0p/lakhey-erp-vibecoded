@@ -94,6 +94,7 @@ export async function createOrder(data: Partial<Order>) {
   if (data.file_id) payload.file_id = data.file_id;
   if (data.image_id) payload.image_id = data.image_id;
   if (data.delivery_address) payload.delivery_address = data.delivery_address;
+  if (data.custom_notes) payload.custom_notes = data.custom_notes;
   if (data.advance_paid !== undefined && data.advance_paid !== null) payload.advance_paid = Number(data.advance_paid);
   if (data.advance_notes) payload.advance_notes = data.advance_notes;
 
@@ -120,7 +121,7 @@ export async function createOrder(data: Partial<Order>) {
     payload
   );
 
-  revalidatePath('/orders');
+  revalidatePath('/admin/orders');
   return JSON.parse(JSON.stringify(doc)) as Order;
 }
 
@@ -181,7 +182,7 @@ export async function updateOrder(id: string, data: Partial<Order>) {
           customer_id: customerId,
           order_id: id,
           amount: totalPrice,
-          status: 'paid',
+          status: 'sent',
           notes: advanceNotes,
         });
         const todayStr = new Date().toISOString().split('T')[0];
@@ -198,10 +199,10 @@ export async function updateOrder(id: string, data: Partial<Order>) {
     }
   }
 
-  revalidatePath('/orders');
-  revalidatePath(`/orders/${id}`);
-  revalidatePath('/invoices');
-  revalidatePath('/finance');
+  revalidatePath('/admin/orders');
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath('/admin/invoices');
+  revalidatePath('/admin/finance');
 }
 
 export async function updateOrderStatus(id: string, status: OrderStatus) {
@@ -234,7 +235,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
           customer_id: customerId,
           order_id: id,
           amount: totalPrice,
-          status: 'paid',
+          status: 'sent',
           notes: advanceNotes,
         });
 
@@ -280,10 +281,10 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
     }
   }
 
-  revalidatePath('/orders');
-  revalidatePath(`/orders/${id}`);
-  revalidatePath('/invoices');
-  revalidatePath('/finance');
+  revalidatePath('/admin/orders');
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath('/admin/invoices');
+  revalidatePath('/admin/finance');
 }
 
 export async function deleteOrder(id: string) {
@@ -293,12 +294,12 @@ export async function deleteOrder(id: string) {
     appwriteConfig.collections.orders,
     id
   );
-  revalidatePath('/orders');
+  revalidatePath('/admin/orders');
 }
 
 /**
  * Convert an order to a draft invoice (or return existing invoice ID if one already exists).
- * Returns { invoiceId } so the client can navigate to /invoices/{invoiceId}.
+ * Returns { invoiceId } so the client can navigate to /admin/invoices/{invoiceId}.
  */
 export async function convertOrderToInvoice(orderId: string): Promise<{ invoiceId: string }> {
   // Check if invoice already exists
@@ -324,9 +325,9 @@ export async function convertOrderToInvoice(orderId: string): Promise<{ invoiceI
     notes: `Invoice for order: ${order.title}`,
   });
 
-  revalidatePath('/invoices');
-  revalidatePath('/orders');
-  revalidatePath('/finance');
+  revalidatePath('/admin/invoices');
+  revalidatePath('/admin/orders');
+  revalidatePath('/admin/finance');
 
   return { invoiceId: invoice.$id };
 }

@@ -186,11 +186,11 @@ export function JobTaskTable({ tasks: initialTasks }: JobTaskTableProps) {
                 return (
                   <tr key={task.$id} className={overdue ? styles.overdueRow : undefined}>
                     <td>
-                      <Link href={`/tasks/${task.$id}`} className={styles.nameLink}>
+                      <Link href={`/admin/tasks/${task.$id}`} className={styles.nameLink}>
                         {task.customer_name}
                       </Link>
                       {task.customer_id && (
-                        <Link href={`/customers/${task.customer_id}`} className={styles.extLink} title="View customer">
+                        <Link href={`/admin/customers/${task.customer_id}`} className={styles.extLink} title="View customer">
                           <ExternalLink size={11} />
                         </Link>
                       )}
@@ -224,7 +224,7 @@ export function JobTaskTable({ tasks: initialTasks }: JobTaskTableProps) {
                       </button>
                     </td>
                     <td className={styles.actions}>
-                      <Link href={`/tasks/${task.$id}/edit`} className={styles.iconBtn} title="Edit">
+                      <Link href={`/admin/tasks/${task.$id}/edit`} className={styles.iconBtn} title="Edit">
                         <Edit2 size={14} />
                       </Link>
                       <button

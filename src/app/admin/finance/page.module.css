@@ -1,0 +1,391 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+/* ── Header ─────────────────── */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--foreground);
+  letter-spacing: -0.03em;
+}
+
+.pageSubtitle {
+  font-size: 0.85rem;
+  color: var(--foreground);
+  opacity: 0.45;
+  margin-top: 0.2rem;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: filter 0.15s;
+}
+.primaryBtn:hover { filter: brightness(1.12); }
+
+/* ── Summary Cards ───────────── */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .summaryGrid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .summaryGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: transform 0.15s;
+}
+.card:hover { transform: translateY(-2px); }
+
+.cardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardBlue .cardIcon     { background: #2563eb20; color: #2563eb; }
+.cardGreen .cardIcon    { background: #05966920; color: #059669; }
+.cardGreenDark .cardIcon{ background: #05966920; color: #059669; }
+.cardAmber .cardIcon    { background: #d9780620; color: #d97806; }
+.cardRed .cardIcon      { background: #dc262620; color: #dc2626; }
+
+.cardBody {
+  min-width: 0;
+  flex: 1;
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  opacity: 0.5;
+  margin-bottom: 0.3rem;
+}
+
+.cardValue {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardGreen .cardValue,
+.cardGreenDark .cardValue { color: #059669; }
+.cardAmber .cardValue     { color: #d97806; }
+.cardRed .cardValue       { color: #dc2626; }
+.cardBlue .cardValue      { color: #2563eb; }
+
+.cardNote {
+  font-size: 0.72rem;
+  opacity: 0.45;
+  margin-top: 0.15rem;
+}
+
+/* ── Section ────────────────── */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  gap: 0.75rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--foreground);
+}
+
+.sectionTitle h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sectionBadge {
+  font-size: 0.75rem;
+  background: var(--border);
+  color: var(--foreground);
+  opacity: 0.7;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.sectionBadgeRed {
+  font-size: 0.75rem;
+  background: #dc262620;
+  color: #dc2626;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+}
+
+.iconRed { color: #dc2626; }
+
+/* ── Two-column layout ───────── */
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .twoCol { grid-template-columns: 1fr; }
+}
+
+/* ── Table ──────────────────── */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table thead th {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  opacity: 0.5;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.table tbody tr:last-child { border-bottom: none; }
+.table tbody tr:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+
+.table tbody td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.rowOverdue {
+  background: color-mix(in srgb, #dc2626 5%, transparent) !important;
+}
+
+.center { text-align: center; }
+.right  { text-align: right; }
+
+.customerLink {
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+}
+.customerLink:hover { color: var(--accent); }
+
+.phoneHint {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.45;
+}
+
+.invLink {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+.invLink:hover { text-decoration: underline; }
+
+.invNumber {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.muted { color: var(--foreground); opacity: 0.4; }
+
+.paidAmount { color: #059669; font-weight: 600; }
+
+.balanceDue {
+  color: #d97806;
+  font-size: 1rem;
+}
+
+.viewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0.8;
+}
+.viewLink:hover { opacity: 1; text-decoration: underline; }
+
+/* ── Badges ─────────────────── */
+.badgeOverdue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #dc262615;
+  color: #dc2626;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badgePartial {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #d9780615;
+  color: #d97806;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.badgePending {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #2563eb15;
+  color: #2563eb;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.daysBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #dc262615;
+  color: #dc2626;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+}
+
+.methodBadge {
+  display: inline-block;
+  font-size: 0.72rem;
+  background: var(--border);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  opacity: 0.8;
+}
+
+/* ── Monthly flow ────────────── */
+.monthLabel {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.revenueText { color: #059669; font-weight: 600; }
+.expenseText { color: #dc2626; font-weight: 600; }
+.netPositive { color: #059669; font-weight: 700; }
+.netNegative { color: #dc2626; font-weight: 700; }
+
+.barRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 0.5rem;
+}
+
+.barRevenue {
+  height: 8px;
+  background: #059669;
+  border-radius: 4px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.barExpense {
+  height: 8px;
+  background: #dc2626;
+  opacity: 0.7;
+  border-radius: 4px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  border-top: 1px solid var(--border);
+}
+
+.dotRevenue, .dotExpense {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.dotRevenue { background: #059669; }
+.dotExpense { background: #dc2626; opacity: 0.7; }
+
+/* ── Empty state ─────────────── */
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+  color: var(--foreground);
+  opacity: 0.4;
+  font-size: 0.9rem;
+}

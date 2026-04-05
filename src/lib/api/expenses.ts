@@ -68,7 +68,7 @@ export async function createExpense(data: Omit<Expense, '$id' | '$createdAt' | '
     ID.unique(),
     payload
   );
-  revalidatePath('/expenses');
+  revalidatePath('/admin/expenses');
 }
 
 export async function updateExpense(id: string, data: Partial<Omit<Expense, '$id' | '$createdAt' | '$updatedAt'>>) {
@@ -83,8 +83,8 @@ export async function updateExpense(id: string, data: Partial<Omit<Expense, '$id
     id,
     payload
   );
-  revalidatePath('/expenses');
-  revalidatePath(`/expenses/${id}`);
+  revalidatePath('/admin/expenses');
+  revalidatePath(`/admin/expenses/${id}`);
 }
 
 export async function deleteExpense(id: string) {
@@ -94,7 +94,7 @@ export async function deleteExpense(id: string) {
     appwriteConfig.collections.expenses,
     id
   );
-  revalidatePath('/expenses');
+  revalidatePath('/admin/expenses');
 }
 
 export async function getExpenseSummary(): Promise<ExpenseSummary> {

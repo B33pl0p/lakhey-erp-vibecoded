@@ -139,7 +139,7 @@ export function ExpenseForm({ initialData, inventoryItems = [] }: ExpenseFormPro
       }
 
       router.refresh();
-      router.push("/expenses");
+      router.push("/admin/expenses");
     } catch (err) {
       console.error(err);
       toast("Failed to save expense", "error");
@@ -152,7 +152,7 @@ export function ExpenseForm({ initialData, inventoryItems = [] }: ExpenseFormPro
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <div className={styles.titleArea}>
-          <Link href="/expenses" className={styles.backBtn}>
+          <Link href="/admin/expenses" className={styles.backBtn}>
             <ArrowLeft size={20} />
           </Link>
           <div>
@@ -342,7 +342,7 @@ export function ExpenseForm({ initialData, inventoryItems = [] }: ExpenseFormPro
 
         {/* Submit */}
         <div className={styles.actions}>
-          <Link href="/expenses" className={styles.cancelBtn}>Cancel</Link>
+          <Link href="/admin/expenses" className={styles.cancelBtn}>Cancel</Link>
           <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
             <Save size={16} />
             {isSubmitting ? "Saving..." : initialData ? "Update Expense" : "Save Expense"}

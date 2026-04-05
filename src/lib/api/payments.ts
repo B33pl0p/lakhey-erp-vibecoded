@@ -19,6 +19,29 @@ export interface Payment {
   $updatedAt: string;
 }
 
+async function listAllPaymentsForInvoice(invoiceId: string): Promise<Record<string, unknown>[]> {
+  const { databases } = await createAdminClient();
+  const allPayments: Record<string, unknown>[] = [];
+  let cursor: string | undefined;
+
+  while (true) {
+    const queries = [Query.equal('invoice_id', invoiceId), Query.limit(100), Query.orderAsc('$id')];
+    if (cursor) queries.push(Query.cursorAfter(cursor));
+
+    const page = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.payments,
+      queries
+    );
+
+    allPayments.push(...(page.documents as Record<string, unknown>[]));
+    if (page.documents.length < 100) break;
+    cursor = page.documents[page.documents.length - 1].$id;
+  }
+
+  return allPayments;
+}
+
 export async function getPaymentsByInvoice(invoiceId: string): Promise<Payment[]> {
   const { databases } = await createAdminClient();
   const response = await databases.listDocuments(
@@ -38,11 +61,37 @@ export async function addPayment(data: {
   notes?: string;
 }): Promise<Payment> {
   const { databases } = await createAdminClient();
+  const amountPaid = Number(data.amount_paid);
+  if (!Number.isFinite(amountPaid) || amountPaid <= 0) {
+    throw new Error("Payment amount must be greater than zero.");
+  }
+
+  const invoiceDoc = await databases.getDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.invoices,
+    data.invoice_id
+  );
+
+  const invoiceAmount = invoiceDoc.amount as number;
+  const invoiceCustomerId = invoiceDoc.customer_id as string;
+  if (data.customer_id !== invoiceCustomerId) {
+    throw new Error("Payment customer does not match invoice customer.");
+  }
+
+  const existingPayments = await listAllPaymentsForInvoice(data.invoice_id);
+  const alreadyPaid = existingPayments.reduce(
+    (sum, p) => sum + (p.amount_paid as number),
+    0
+  );
+  const remaining = Math.max(0, invoiceAmount - alreadyPaid);
+  if (amountPaid > remaining + 0.01) {
+    throw new Error(`Payment exceeds remaining balance. Remaining: ${remaining.toFixed(2)}`);
+  }
 
   const payload: Record<string, unknown> = {
     invoice_id: data.invoice_id,
     customer_id: data.customer_id,
-    amount_paid: Number(data.amount_paid),
+    amount_paid: amountPaid,
     payment_method: data.payment_method,
   };
   if (data.payment_date) payload.payment_date = data.payment_date;
@@ -58,8 +107,8 @@ export async function addPayment(data: {
   // Sync invoice status after adding payment
   await syncInvoiceStatus(data.invoice_id);
 
-  revalidatePath(`/invoices/${data.invoice_id}`);
-  revalidatePath('/invoices');
+  revalidatePath(`/admin/invoices/${data.invoice_id}`);
+  revalidatePath('/admin/invoices');
   return JSON.parse(JSON.stringify(doc)) as Payment;
 }
 
@@ -74,8 +123,8 @@ export async function deletePayment(paymentId: string, invoiceId: string): Promi
   // Sync invoice status after removing payment
   await syncInvoiceStatus(invoiceId);
 
-  revalidatePath(`/invoices/${invoiceId}`);
-  revalidatePath('/invoices');
+  revalidatePath(`/admin/invoices/${invoiceId}`);
+  revalidatePath('/admin/invoices');
 }
 
 /**
@@ -94,29 +143,21 @@ export async function syncInvoiceStatus(invoiceId: string): Promise<void> {
     invoiceId
   );
 
-  // Get all payments for this invoice
-  const paymentsRes = await databases.listDocuments(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.payments,
-    [Query.equal('invoice_id', invoiceId), Query.limit(500)]
-  );
-
-  const totalPaid = paymentsRes.documents.reduce(
+  const allPayments = await listAllPaymentsForInvoice(invoiceId);
+  const totalPaid = allPayments.reduce(
     (sum, p) => sum + (p.amount_paid as number),
     0
   );
   const amount = invoiceDoc.amount as number;
 
-  let newStatus: string = invoiceDoc.status as string;
-  if (totalPaid >= amount && totalPaid > 0) {
+  let newStatus: string;
+  if (totalPaid >= amount && amount > 0) {
     newStatus = "paid";
   } else if (totalPaid > 0) {
     newStatus = "partially_paid";
   } else {
-    // No payments — restore to "sent" if was previously partially_paid, else leave as-is
-    if (invoiceDoc.status === "partially_paid") {
-      newStatus = "sent";
-    }
+    // No payments: drafts stay draft; anything else reverts to sent.
+    newStatus = invoiceDoc.status === "draft" ? "draft" : "sent";
   }
 
   if (newStatus !== invoiceDoc.status) {
