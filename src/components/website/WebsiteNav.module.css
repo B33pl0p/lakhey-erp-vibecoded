@@ -1,6 +1,7 @@
 .wrap {
   width: min(1500px, 100%);
   margin: 0 auto 0.9rem;
+  padding-inline: clamp(0.2rem, 1vw, 0.8rem);
 }
 
 .nav {

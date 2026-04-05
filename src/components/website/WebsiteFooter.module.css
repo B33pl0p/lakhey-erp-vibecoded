@@ -2,6 +2,7 @@
   width: min(1500px, 100%);
   margin: 0 auto;
   padding-top: 1.15rem;
+  padding-inline: clamp(0.2rem, 1vw, 0.8rem);
 }
 
 .footer {
