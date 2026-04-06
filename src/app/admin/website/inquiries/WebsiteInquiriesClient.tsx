@@ -92,6 +92,7 @@ export function WebsiteInquiriesClient() {
           <thead>
             <tr>
               <th>Lead</th>
+              <th>Address</th>
               <th>Type</th>
               <th>Material</th>
               <th>Project</th>
@@ -104,12 +105,12 @@ export function WebsiteInquiriesClient() {
           <tbody>
             {!isLoading && inquiries.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.empty}>No website inquiries yet.</td>
+                <td colSpan={9} className={styles.empty}>No website inquiries yet.</td>
               </tr>
             ) : null}
             {isLoading ? (
               <tr>
-                <td colSpan={8} className={styles.empty}>Loading inquiries...</td>
+                <td colSpan={9} className={styles.empty}>Loading inquiries...</td>
               </tr>
             ) : null}
             {inquiries.map((inquiry) => (
@@ -118,9 +119,11 @@ export function WebsiteInquiriesClient() {
                   <div className={styles.leadCell}>
                     <strong>{inquiry.name}</strong>
                     <span>{inquiry.email}</span>
+                    <span>{inquiry.phone || "No phone provided"}</span>
                     <span>{inquiry.inquiry_as || "—"}</span>
                   </div>
                 </td>
+                <td className={styles.address}>{inquiry.address || "—"}</td>
                 <td className={styles.capitalize}>{inquiry.inquiry_type}</td>
                 <td>{inquiry.material_preference || "—"}</td>
                 <td className={styles.project}>{inquiry.project_description}</td>

@@ -11,6 +11,8 @@ export interface WebsiteInquiry {
   customer_id?: string;
   name: string;
   email: string;
+  phone?: string;
+  address?: string;
   inquiry_type: string;
   inquiry_as?: string;
   material_preference?: string;
@@ -26,6 +28,8 @@ type WebsiteInquiryInput = {
   customer_id?: string;
   name: string;
   email: string;
+  phone?: string;
+  address?: string;
   inquiry_type: string;
   inquiry_as?: string;
   material_preference?: string;
@@ -38,6 +42,8 @@ type WebsiteInquiryInput = {
 type StudioInquiryInput = {
   name: string;
   email: string;
+  phone: string;
+  address?: string;
   inquiryAs?: string;
   materialPreference?: string;
   projectDescription: string;
@@ -91,6 +97,8 @@ async function ensureWebsiteInquiriesCollection(databases: Awaited<ReturnType<ty
   await ensureStringAttribute(databases, collectionId, "customer_id", 120, false, "");
   await ensureStringAttribute(databases, collectionId, "name", 160, true);
   await ensureStringAttribute(databases, collectionId, "email", 200, true);
+  await ensureStringAttribute(databases, collectionId, "phone", 80, false, "");
+  await ensureStringAttribute(databases, collectionId, "address", 500, false, "");
   await ensureStringAttribute(databases, collectionId, "inquiry_type", 80, true);
   await ensureStringAttribute(databases, collectionId, "inquiry_as", 80, false, "");
   await ensureStringAttribute(databases, collectionId, "material_preference", 200, false, "");
@@ -141,6 +149,8 @@ export async function createWebsiteInquiry(data: WebsiteInquiryInput) {
       customer_id: data.customer_id || "",
       name: data.name,
       email: data.email,
+      phone: data.phone || "",
+      address: data.address || "",
       inquiry_type: data.inquiry_type,
       inquiry_as: data.inquiry_as || "",
       material_preference: data.material_preference || "",
@@ -180,10 +190,12 @@ export async function deleteWebsiteInquiry(id: string) {
 export async function submitStudioInquiry(data: StudioInquiryInput): Promise<{ customerId?: string; error?: string }> {
   const name = data.name.trim();
   const email = data.email.trim().toLowerCase();
+  const phone = data.phone.trim();
+  const address = data.address?.trim() || "";
   const projectDescription = data.projectDescription.trim();
 
-  if (!name || !email || !projectDescription) {
-    return { error: "Please fill in your name, email, and project description." };
+  if (!name || !email || !phone || !projectDescription) {
+    return { error: "Please fill in your name, email, phone number, and project description." };
   }
 
   const { databases } = await createAdminClient();
@@ -196,6 +208,8 @@ export async function submitStudioInquiry(data: StudioInquiryInput): Promise<{ c
   const existing = JSON.parse(JSON.stringify(existingRes.documents[0] ?? null)) as {
     $id: string;
     name: string;
+    phone?: string;
+    address?: string;
   } | null;
 
   let customerId = existing?.$id;
@@ -205,7 +219,11 @@ export async function submitStudioInquiry(data: StudioInquiryInput): Promise<{ c
       appwriteConfig.databaseId,
       appwriteConfig.collections.customers,
       existing.$id,
-      { name: name || existing.name }
+      {
+        name: name || existing.name,
+        phone: phone || existing.phone || "",
+        address: address || existing.address || "",
+      }
     );
   } else {
     const doc = await databases.createDocument(
@@ -215,6 +233,8 @@ export async function submitStudioInquiry(data: StudioInquiryInput): Promise<{ c
       {
         name,
         email,
+        phone,
+        address,
         notes: "",
       }
     );
@@ -226,6 +246,8 @@ export async function submitStudioInquiry(data: StudioInquiryInput): Promise<{ c
     customer_id: customerId,
     name,
     email,
+    phone,
+    address,
     inquiry_type: "studio",
     inquiry_as: data.inquiryAs?.trim(),
     material_preference: data.materialPreference?.trim(),

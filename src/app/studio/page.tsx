@@ -9,6 +9,8 @@ import styles from "./page.module.css";
 export default function StudioPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [inquiryAs, setInquiryAs] = useState("Business");
   const [projectDescription, setProjectDescription] = useState("");
   const [materialPreference, setMaterialPreference] = useState("");
@@ -26,6 +28,8 @@ export default function StudioPage() {
       const result = await submitStudioInquiry({
         name,
         email,
+        phone,
+        address,
         inquiryAs,
         materialPreference,
         projectDescription,
@@ -40,6 +44,8 @@ export default function StudioPage() {
       setSuccess("Your inquiry was submitted successfully. Our team can now review it from the admin panel.");
       setName("");
       setEmail("");
+      setPhone("");
+      setAddress("");
       setInquiryAs("Business");
       setProjectDescription("");
       setMaterialPreference("");
@@ -96,6 +102,24 @@ export default function StudioPage() {
           <label>
             Email
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </label>
+          <label>
+            Phone Number
+            <input
+              type="tel"
+              placeholder="+977 98XXXXXXXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </label>
+          <label>
+            Delivery Area / Address
+            <input
+              placeholder="City, area, or full delivery address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
           </label>
           <label>
             I am inquiring as

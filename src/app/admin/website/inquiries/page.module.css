@@ -69,11 +69,13 @@
 }
 
 .leadCell span,
-.project {
+.project,
+.address {
   color: rgba(180, 184, 192, 0.95);
 }
 
-.project {
+.project,
+.address {
   max-width: 40ch;
   white-space: pre-wrap;
 }
