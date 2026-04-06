@@ -45,8 +45,6 @@ const infoCards = [
 export function LandingPage({ products }: LandingPageProps) {
   const showcaseProducts = products.slice(0, 4);
   const heroImage = "/website/hero.png";
-  const aboutImage = "/website/about.png";
-
   return (
     <main className={styles.page}>
       <div className={styles.bgBase} />
@@ -203,22 +201,13 @@ export function LandingPage({ products }: LandingPageProps) {
       </section>
 
       <section id="about" className={styles.section}>
-        <div className={styles.aboutWrap}>
-          <div className={styles.aboutBlock}>
-            <p className={styles.kicker}>About Us</p>
-            <h2>We make digital work tangible.</h2>
-            <p>
-              We are based in Kathmandu. Our goal is simple: help you move from idea to object with less friction and
-              reliable results.
-            </p>
-          </div>
-          <div className={styles.aboutImage}>
-            {aboutImage ? (
-              <Image src={aboutImage} alt="A finished 3D printed piece from our team" fill unoptimized className={styles.heroVisualImage} />
-            ) : (
-              <div className={styles.imageFallback}>Our Workshop</div>
-            )}
-          </div>
+        <div className={styles.aboutBlock}>
+          <p className={styles.kicker}>About Us</p>
+          <h2>We make digital work tangible.</h2>
+          <p>
+            We are based in Kathmandu. Our goal is simple: help you move from idea to object with less friction and
+            reliable results.
+          </p>
         </div>
       </section>
       <WebsiteFooter />

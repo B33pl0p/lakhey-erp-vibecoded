@@ -473,8 +473,7 @@
 
 .heroVisual,
 .snapshotMedia,
-.materialImageCard,
-.aboutImage {
+.materialImageCard {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--line);
@@ -884,16 +883,6 @@
   padding: clamp(1.3rem, 2.4vw, 1.9rem);
 }
 
-.aboutWrap {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 1rem;
-}
-
-.aboutImage {
-  min-height: 100%;
-}
-
 @media (max-width: 1120px) {
   .navWrap,
   .hero,
@@ -906,7 +895,6 @@
   .snapshotGrid,
   .sectionSplit,
   .pivot,
-  .aboutWrap,
   .capabilityGrid,
   .trustGrid {
     grid-template-columns: 1fr;
