@@ -21,6 +21,7 @@ export const appwriteConfig = {
     websiteClients: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_CLIENTS || "website_clients",
     websiteSections: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_SECTIONS || "website_sections",
     websiteFaq: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_FAQ || "website_faq",
+    websiteInquiries: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_INQUIRIES || "website_inquiries",
   }
 };
 

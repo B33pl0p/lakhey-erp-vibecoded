@@ -38,6 +38,7 @@ const COLLECTIONS = {
   websiteClients: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_CLIENTS || "website_clients",
   websiteSections: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_SECTIONS || "website_sections",
   websiteFaq: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_FAQ || "website_faq",
+  websiteInquiries: process.env.NEXT_PUBLIC_COLLECTION_WEBSITE_INQUIRIES || "website_inquiries",
 };
 
 const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
@@ -147,6 +148,21 @@ async function ensureFaq() {
   await ensureInt(id, "sort_order", false, 0, 9999, 100);
 }
 
+async function ensureInquiries() {
+  const id = COLLECTIONS.websiteInquiries;
+  await ensureCollection(id, "website_inquiries");
+  await ensureString(id, "customer_id", 120, false, "");
+  await ensureString(id, "name", 160, true);
+  await ensureString(id, "email", 200, true);
+  await ensureString(id, "inquiry_type", 80, true);
+  await ensureString(id, "inquiry_as", 80, false, "");
+  await ensureString(id, "material_preference", 200, false, "");
+  await ensureString(id, "project_description", 4000, true);
+  await ensureString(id, "file_link", 500, false, "");
+  await ensureString(id, "source_page", 200, false, "/studio");
+  await ensureString(id, "status", 80, false, "new");
+}
+
 async function seedIfEmpty(collectionId, docs) {
   const existing = await db.listDocuments(databaseId, collectionId);
   if (existing.total > 0) {
@@ -253,6 +269,7 @@ async function run() {
   await ensureClients();
   await ensureSections();
   await ensureFaq();
+  await ensureInquiries();
 
   console.log("Seeding starter website content...");
   await seedWebsiteData();
@@ -263,6 +280,7 @@ async function run() {
   console.log(`NEXT_PUBLIC_COLLECTION_WEBSITE_CLIENTS=${COLLECTIONS.websiteClients}`);
   console.log(`NEXT_PUBLIC_COLLECTION_WEBSITE_SECTIONS=${COLLECTIONS.websiteSections}`);
   console.log(`NEXT_PUBLIC_COLLECTION_WEBSITE_FAQ=${COLLECTIONS.websiteFaq}`);
+  console.log(`NEXT_PUBLIC_COLLECTION_WEBSITE_INQUIRIES=${COLLECTIONS.websiteInquiries}`);
 }
 
 run().catch((err) => {

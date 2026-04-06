@@ -11,7 +11,9 @@ interface Props {
 export const dynamic = "force-dynamic";
 
 export default async function CustomerDetailPage({ params }: Props) {
-  const { id } = await params;
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  if (!id) notFound();
 
   let customer;
   try {

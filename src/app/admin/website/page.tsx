@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageSquare, Building2, Blocks, Settings2 } from "lucide-react";
+import { MessageSquare, Building2, Blocks, Settings2, Inbox } from "lucide-react";
 import styles from "./page.module.css";
 
 const cards = [
@@ -26,6 +26,12 @@ const cards = [
     text: "Edit hero title, CTAs, and global website info.",
     href: "/admin/website/settings",
     icon: Settings2,
+  },
+  {
+    title: "Inquiries",
+    text: "Review and manage website leads from the studio form.",
+    href: "/admin/website/inquiries",
+    icon: Inbox,
   },
 ];
 

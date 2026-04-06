@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { submitStudioInquiry } from "@/lib/api/customers";
+import { submitStudioInquiry } from "@/lib/api/websiteInquiries";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
 import styles from "./page.module.css";

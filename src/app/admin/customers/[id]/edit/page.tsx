@@ -9,7 +9,9 @@ interface Props {
 }
 
 export default async function EditCustomerPage({ params }: Props) {
-  const { id } = await params;
+  const resolvedParams = await params;
+  const id = resolvedParams?.id;
+  if (!id) notFound();
 
   let customer;
   try {
