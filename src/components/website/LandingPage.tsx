@@ -87,7 +87,6 @@ export function LandingPage({ products }: LandingPageProps) {
           <div className={styles.signalRow}>
             <span>Custom Prints</span>
             <span>Ready Products</span>
-            <span>Made in Nepal</span>
             <span className={styles.heritageBadge}>Made in Nepal</span>
           </div>
         </div>

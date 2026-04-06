@@ -44,6 +44,11 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
   );
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
+  const [primaryImageKey, setPrimaryImageKey] = useState<string | null>(
+    initialData?.image_ids?.[0]
+      ? `existing:${initialData.image_ids[0]}`
+      : (initialData?.image_id ? `existing:${initialData.image_id}` : null)
+  );
   const [stlFile, setStlFile] = useState<File | null>(null);
 
   // Phase 2: set after creation to enter BOM + pricing inline
@@ -84,9 +89,32 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
       return;
     }
 
+    const previewUrls = files.map((f) => URL.createObjectURL(f));
     setNewImageFiles((prev) => [...prev, ...files]);
-    setNewImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    setNewImagePreviews((prev) => {
+      const next = [...prev, ...previewUrls];
+      setPrimaryImageKey((current) => current ?? `new:${previewUrls[0]}`);
+      return next;
+    });
     e.target.value = "";
+  };
+
+  const ensurePrimaryAfterImageRemoval = (nextExisting: string[], nextPreviews: string[]) => {
+    setPrimaryImageKey((current) => {
+      if (current?.startsWith("existing:")) {
+        const id = current.slice("existing:".length);
+        if (nextExisting.includes(id)) return current;
+      }
+
+      if (current?.startsWith("new:")) {
+        const preview = current.slice("new:".length);
+        if (nextPreviews.includes(preview)) return current;
+      }
+
+      if (nextExisting[0]) return `existing:${nextExisting[0]}`;
+      if (nextPreviews[0]) return `new:${nextPreviews[0]}`;
+      return null;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,10 +141,27 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
         file_id = await uploadFile(fd);
       }
 
+      const selectedExistingId = primaryImageKey?.startsWith("existing:")
+        ? primaryImageKey.slice("existing:".length)
+        : null;
+      const selectedNewPreview = primaryImageKey?.startsWith("new:")
+        ? primaryImageKey.slice("new:".length)
+        : null;
+      const selectedNewIndex = selectedNewPreview ? newImagePreviews.indexOf(selectedNewPreview) : -1;
+      const selectedUploadedId = selectedNewIndex >= 0 ? uploadedImageIds[selectedNewIndex] : null;
+
       const image_ids = [...existingImageIds, ...uploadedImageIds];
+      const primaryImageId = selectedExistingId && image_ids.includes(selectedExistingId)
+        ? selectedExistingId
+        : selectedUploadedId && image_ids.includes(selectedUploadedId)
+          ? selectedUploadedId
+          : image_ids[0];
+      const orderedImageIds = primaryImageId
+        ? [primaryImageId, ...image_ids.filter((id) => id !== primaryImageId)]
+        : image_ids;
       const imageIdsPayload =
-        image_ids.length > 0
-          ? image_ids
+        orderedImageIds.length > 0
+          ? orderedImageIds
           : (initialData ? [] : undefined);
 
       const normalizedCategory = normalizeProductCategory(formData.category);
@@ -132,7 +177,7 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
         description: formData.description,
         is_active: formData.is_active,
         image_ids: imageIdsPayload,
-        image_id: image_ids[0],
+        image_id: orderedImageIds[0],
         file_id,
         // Edit mode: include pricing
         ...(initialData ? {
@@ -206,8 +251,19 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
                         />
                         <button
                           type="button"
+                          className={primaryImageKey === `existing:${imgId}` ? styles.primaryBtnActive : styles.primaryBtn}
+                          onClick={() => setPrimaryImageKey(`existing:${imgId}`)}
+                        >
+                          {primaryImageKey === `existing:${imgId}` ? "Display Image" : "Set as Display"}
+                        </button>
+                        <button
+                          type="button"
                           className={styles.clearBtn}
-                          onClick={() => setExistingImageIds((prev) => prev.filter((id) => id !== imgId))}
+                          onClick={() => {
+                            const nextExisting = existingImageIds.filter((id) => id !== imgId);
+                            setExistingImageIds(nextExisting);
+                            ensurePrimaryAfterImageRemoval(nextExisting, newImagePreviews);
+                          }}
                         >
                           Remove
                         </button>
@@ -224,10 +280,20 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
                         />
                         <button
                           type="button"
+                          className={primaryImageKey === `new:${previewUrl}` ? styles.primaryBtnActive : styles.primaryBtn}
+                          onClick={() => setPrimaryImageKey(`new:${previewUrl}`)}
+                        >
+                          {primaryImageKey === `new:${previewUrl}` ? "Display Image" : "Set as Display"}
+                        </button>
+                        <button
+                          type="button"
                           className={styles.clearBtn}
                           onClick={() => {
-                            setNewImageFiles((prev) => prev.filter((_, i) => i !== idx));
-                            setNewImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+                            const nextFiles = newImageFiles.filter((_, i) => i !== idx);
+                            const nextPreviews = newImagePreviews.filter((_, i) => i !== idx);
+                            setNewImageFiles(nextFiles);
+                            setNewImagePreviews(nextPreviews);
+                            ensurePrimaryAfterImageRemoval(existingImageIds, nextPreviews);
                           }}
                         >
                           Remove
@@ -235,22 +301,36 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
                       </div>
                     ))}
                   </div>
+                  <label className={styles.inlineUploadBtn}>
+                    <ImageIcon size={16} />
+                    Add More Photos
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageChange}
+                      className={styles.hiddenFileInput}
+                      title="Upload photos"
+                    />
+                  </label>
                 </div>
               ) : (
-                <div className={styles.uploadPrompt}>
-                  <ImageIcon size={28} />
-                  <p>Upload product photos</p>
-                  <span>Multiple JPG, PNG, WEBP files up to 10 MB each</span>
-                </div>
+                <label className={styles.emptyUploadArea}>
+                  <div className={styles.uploadPrompt}>
+                    <ImageIcon size={28} />
+                    <p>Upload product photos</p>
+                    <span>Multiple JPG, PNG, WEBP files up to 10 MB each</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className={styles.hiddenFileInput}
+                    title="Upload photos"
+                  />
+                </label>
               )}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className={styles.fileInput}
-                title="Upload photos"
-              />
             </div>
 
             <div className={styles.mediaBox}>
@@ -281,6 +361,9 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
               />
             </div>
           </div>
+          {(existingImageIds.length > 0 || newImagePreviews.length > 0) && (
+            <p className={styles.hint}>Choose “Set as Display” on any image to control the main product image shown on the website.</p>
+          )}
         </div>
 
         {/* Basic Details */}

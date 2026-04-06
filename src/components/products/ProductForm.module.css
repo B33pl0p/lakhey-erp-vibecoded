@@ -172,7 +172,8 @@
 .previewContainer {
   width: 100%;
   height: 100%;
-  display: block;
+  display: grid;
+  gap: 0.75rem;
   padding: 0.75rem;
   overflow-y: auto;
 }
@@ -209,13 +210,64 @@
   text-decoration: underline;
 }
 
-.fileInput {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
+.primaryBtn,
+.primaryBtnActive {
+  font-size: 0.75rem;
+  border-radius: 999px;
+  padding: 0.38rem 0.65rem;
   cursor: pointer;
+  border: 1px solid var(--border);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.primaryBtn {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.primaryBtnActive {
+  background: rgba(230, 57, 70, 0.16);
+  border-color: var(--accent);
+  color: #ffb6bc;
+  font-weight: 600;
+}
+
+.hiddenFileInput {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.emptyUploadArea {
+  display: flex;
   width: 100%;
-  height: 100%;
+  min-height: 130px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.inlineUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: fit-content;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.8rem;
+  font-size: 0.82rem;
+  color: var(--foreground);
+  background: rgba(128, 128, 128, 0.06);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.inlineUploadBtn:hover {
+  background: rgba(128, 128, 128, 0.12);
+  border-color: var(--accent);
 }
 
 /* Checkbox row */
