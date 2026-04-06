@@ -899,7 +899,7 @@
   .hero,
   .section,
   .pivot {
-    width: 100%;
+    width: calc(100% - (var(--page-gutter) * 2));
   }
 
   .hero,
