@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 export interface Product {
   $id: string;
   name: string;
-  category: "lamp" | "print" | "enclosure" | "decor" | "other";
+  category: string;
   description?: string;
   labor_cost: number;
   making_cost: number; // stored but also computed from BOM + labor_cost
@@ -59,6 +59,26 @@ function normalizeProduct(product: Product): Product {
 function isUnknownImageIdsAttributeError(err: unknown): boolean {
   const message = err instanceof Error ? err.message : String(err);
   return message.includes('Unknown attribute: "image_ids"');
+}
+
+function isInvalidProductCategoryError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  const lower = message.toLowerCase();
+  return lower.includes("category") && (
+    lower.includes("invalid document structure") ||
+    lower.includes("invalid enum value") ||
+    lower.includes("must be one of")
+  );
+}
+
+function toProductSaveError(err: unknown): Error {
+  if (isInvalidProductCategoryError(err)) {
+    return new Error(
+      'This Appwrite environment still restricts product categories. Update the products.category enum before saving a new category.'
+    );
+  }
+
+  return err instanceof Error ? err : new Error(String(err));
 }
 
 async function ensureImageIdsAttribute(databases: Awaited<ReturnType<typeof createAdminClient>>["databases"]) {
@@ -145,7 +165,7 @@ export async function createProduct(data: Partial<Product>) {
       payload
     );
   } catch (err) {
-    if (!isUnknownImageIdsAttributeError(err)) throw err;
+    if (!isUnknownImageIdsAttributeError(err)) throw toProductSaveError(err);
 
     // Self-heal schema then retry once with full multi-image payload.
     await ensureImageIdsAttribute(databases);
@@ -204,7 +224,7 @@ export async function updateProduct(id: string, data: Partial<Product>) {
       payload
     );
   } catch (err) {
-    if (!isUnknownImageIdsAttributeError(err)) throw err;
+    if (!isUnknownImageIdsAttributeError(err)) throw toProductSaveError(err);
 
     // Self-heal schema then retry once with full multi-image payload.
     await ensureImageIdsAttribute(databases);

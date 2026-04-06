@@ -5,6 +5,7 @@ import { ProductDetailBody } from "@/components/products/ProductDetailBody";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Edit2, ArrowLeft } from "lucide-react";
+import { formatProductCategoryLabel } from "@/lib/products/categories";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function ProductDetailPage({ params }: Props) {
               <span className={`${styles.badge} ${product.is_active ? styles.active : styles.inactive}`}>
                 {product.is_active ? "Active" : "Inactive"}
               </span>
-              <span className={styles.categoryBadge}>{product.category}</span>
+              <span className={styles.categoryBadge}>{formatProductCategoryLabel(product.category)}</span>
             </div>
             {product.description && (
               <p className={styles.description}>{product.description}</p>

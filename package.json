@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "setup:website": "node scripts/setup-website-content.mjs"
+    "setup:website": "node scripts/setup-website-content.mjs",
+    "categories:sync": "node scripts/update-product-category-enum.mjs"
   },
   "dependencies": {
     "appwrite": "^23.0.0",

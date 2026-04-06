@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/currency";
+import { formatProductCategoryLabel } from "@/lib/products/categories";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
 import styles from "./LandingPage.module.css";
@@ -137,7 +138,7 @@ export function LandingPage({ products }: LandingPageProps) {
                   )}
                 </div>
                 <div className={styles.productBody}>
-                  <p className={styles.productCategory}>{product.category}</p>
+                  <p className={styles.productCategory}>{formatProductCategoryLabel(product.category)}</p>
                   <h3>{product.name}</h3>
                   <p>{product.description || "Precision-printed in house for practical use, clean presentation, and reliable output."}</p>
                   <div className={styles.productRow}>

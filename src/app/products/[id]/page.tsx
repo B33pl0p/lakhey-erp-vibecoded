@@ -5,6 +5,7 @@ import { WebsiteNav } from "@/components/website/WebsiteNav";
 import { getProduct } from "@/lib/api/products";
 import { getFilePreviewUrl } from "@/lib/api/storage";
 import { formatCurrency } from "@/lib/utils/currency";
+import { formatProductCategoryLabel } from "@/lib/products/categories";
 import styles from "./page.module.css";
 
 interface Props {
@@ -60,7 +61,7 @@ export default async function ProductDetailWebsitePage({ params }: Props) {
           </div>
 
           <div className={styles.infoCard}>
-            <p className={styles.category}>{product.category}</p>
+            <p className={styles.category}>{formatProductCategoryLabel(product.category)}</p>
             <h1>{product.name}</h1>
             <p className={styles.desc}>{product.description || "Premium 3D printed product by Lakhey Labs."}</p>
 

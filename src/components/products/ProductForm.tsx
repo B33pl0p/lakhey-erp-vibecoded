@@ -7,6 +7,11 @@ import { createProduct, updateProduct, type Product } from "@/lib/api/products";
 import { uploadFile } from "@/lib/api/storage";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { InventoryItem } from "@/lib/api/inventory";
+import {
+  buildProductCategoryOptions,
+  formatProductCategoryLabel,
+  normalizeProductCategory,
+} from "@/lib/products/categories";
 import { BomEditor } from "./BomEditor";
 import styles from "./ProductForm.module.css";
 import Link from "next/link";
@@ -16,8 +21,6 @@ interface ProductFormProps {
   initialData?: Product;
   allInventoryItems?: InventoryItem[];
 }
-
-const CATEGORIES = ["lamp", "print", "enclosure", "decor", "other"] as const;
 
 export function ProductForm({ initialData, allInventoryItems = [] }: ProductFormProps) {
   const router = useRouter();
@@ -45,6 +48,9 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
 
   // Phase 2: set after creation to enter BOM + pricing inline
   const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
+  const categoryOptions = buildProductCategoryOptions(
+    initialData?.category ? [initialData.category] : []
+  );
 
   // Edit mode live pricing
   const editMaterialCost = initialData
@@ -113,9 +119,16 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
           ? image_ids
           : (initialData ? [] : undefined);
 
+      const normalizedCategory = normalizeProductCategory(formData.category);
+      if (!normalizedCategory) {
+        toast("Category is required", "error");
+        setIsSubmitting(false);
+        return;
+      }
+
       const payload: Partial<Product> = {
         name: formData.name,
-        category: formData.category,
+        category: normalizedCategory,
         description: formData.description,
         is_active: formData.is_active,
         image_ids: imageIdsPayload,
@@ -146,7 +159,7 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
       }
     } catch (err) {
       console.error(err);
-      toast("Error saving product", "error");
+      toast(err instanceof Error ? err.message : "Error saving product", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -280,11 +293,25 @@ export function ProductForm({ initialData, allInventoryItems = [] }: ProductForm
             </div>
             <div className={styles.field}>
               <label htmlFor="category">Category *</label>
-              <select required id="category" name="category" value={formData.category} onChange={handleChange}>
-                {CATEGORIES.map(c => (
-                  <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+              <input
+                required
+                id="category"
+                name="category"
+                list="product-category-options"
+                value={formData.category}
+                onChange={handleChange}
+                placeholder="e.g. lamp, figurine, organizer"
+              />
+              <datalist id="product-category-options">
+                {categoryOptions.map((category) => (
+                  <option key={category} value={category}>
+                    {formatProductCategoryLabel(category)}
+                  </option>
                 ))}
-              </select>
+              </datalist>
+              <span className={styles.hint}>
+                Pick an existing category or type a new one. It will be saved automatically.
+              </span>
             </div>
           </div>
           <div className={styles.field}>

@@ -4,6 +4,7 @@ import { WebsiteNav } from "@/components/website/WebsiteNav";
 import { getProducts } from "@/lib/api/products";
 import { getFilePreviewUrl } from "@/lib/api/storage";
 import { formatCurrency } from "@/lib/utils/currency";
+import { formatProductCategoryLabel } from "@/lib/products/categories";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                 )}
               </Link>
               <div className={styles.body}>
-                <p className={styles.category}>{product.category}</p>
+                <p className={styles.category}>{formatProductCategoryLabel(product.category)}</p>
                 <h2>{product.name}</h2>
                 <p>{product.description || "Premium 3D printed product by Lakhey Labs."}</p>
                 <div className={styles.row}>

@@ -11,9 +11,10 @@ import Link from "next/link";
 import styles from "./ProductTable.module.css";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { formatCurrency } from "@/lib/utils/currency";
-
-
-const CATEGORIES = ["lamp", "print", "enclosure", "decor", "other"] as const;
+import {
+  buildProductCategoryOptions,
+  formatProductCategoryLabel,
+} from "@/lib/products/categories";
 
 function calcMargin(selling: number, making: number): string {
   if (!selling || selling === 0) return "—";
@@ -30,6 +31,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const categoryOptions = buildProductCategoryOptions(initialProducts.map((product) => product.category));
 
   useEffect(() => {
     const loadImages = async () => {
@@ -99,8 +101,8 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
           onChange={e => setCategoryFilter(e.target.value)}
         >
           <option value="all">All Categories</option>
-          {CATEGORIES.map(c => (
-            <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+          {categoryOptions.map(c => (
+            <option key={c} value={c}>{formatProductCategoryLabel(c)}</option>
           ))}
         </select>
       </div>
@@ -137,7 +139,7 @@ export function ProductTable({ initialProducts }: { initialProducts: Product[] }
                   </div>
                 </td>
                 <td className={styles.nameCell}>{p.name}</td>
-                <td className={styles.capitalize}>{p.category}</td>
+                <td className={styles.capitalize}>{formatProductCategoryLabel(p.category)}</td>
                 <td>{formatCurrency(p.selling_price)}</td>
                 <td>{formatCurrency(p.making_cost)}</td>
                 <td>
