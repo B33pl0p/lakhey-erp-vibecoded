@@ -3,6 +3,7 @@
   flex-direction: column;
   width: 100%;
   gap: 0;
+  min-width: 0;
 }
 
 /* Summary row */
@@ -225,7 +226,8 @@
 }
 
 .table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   text-align: left;
 }
@@ -348,7 +350,59 @@
 }
 
 @media (max-width: 900px) {
+  .summaryGrid,
+  .reportsRow,
+  .toolbar {
+    padding: 1rem;
+  }
+
   .reportsRow {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .searchBox,
+  .filterSelect {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filteredTotal {
+    padding: 0.75rem 1rem;
+  }
+
+  .tableContainer {
+    padding: 0 1rem 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+
+  .categoryRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .categoryMeta {
+    width: auto;
+    min-width: 0;
+  }
+
+  .categoryAmount {
+    min-width: 0;
+    text-align: left;
   }
 }
