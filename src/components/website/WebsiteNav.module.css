@@ -13,6 +13,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.65rem;
+  position: relative;
 }
 
 .brand {
@@ -99,31 +100,39 @@
   background: linear-gradient(135deg, #ff9aa1, #ff6b75);
 }
 
+.menuToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(232, 57, 70, 0.24);
+  border-radius: 999px;
+  background: rgba(30, 31, 36, 0.84);
+  color: #d8dbe1;
+  cursor: pointer;
+}
+
+.menuPanel {
+  display: contents;
+}
+
 @media (max-width: 1080px) {
   .nav {
     border-radius: 18px;
-    display: grid;
-    gap: 0.6rem;
-  }
-
-  .links {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.2rem;
-    scrollbar-width: thin;
-  }
-
-  .actions {
-    justify-content: flex-start;
-    width: 100%;
   }
 }
 
 @media (max-width: 620px) {
+  .nav {
+    flex-wrap: wrap;
+    border-radius: 22px;
+    padding: 0.7rem;
+  }
+
   .brand {
     gap: 0.45rem;
+    min-width: 0;
   }
 
   .mascotWrap {
@@ -136,14 +145,45 @@
     height: 28px;
   }
 
+  .menuToggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
+  .menuPanel {
+    width: 100%;
+    display: none;
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+    padding-top: 0.25rem;
+  }
+
+  .menuPanelOpen {
+    display: grid;
+  }
+
+  .links {
+    width: 100%;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .links a {
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+  }
+
   .actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 0.45rem;
+    width: 100%;
   }
 
   .secondaryBtn,
   .primaryBtn {
+    display: inline-flex;
     text-align: center;
     justify-content: center;
     padding: 0.5rem 0.66rem;

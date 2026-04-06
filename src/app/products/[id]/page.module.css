@@ -59,22 +59,17 @@
   align-items: start;
 }
 
-.gallery,
-.infoCard {
+.infoCard,
+.fallback {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--surface);
   overflow: hidden;
 }
 
-.mainImage,
 .fallback {
   width: 100%;
   aspect-ratio: 4 / 3;
-}
-
-.mainImage {
-  object-fit: cover;
 }
 
 .fallback {
@@ -83,21 +78,6 @@
   background: linear-gradient(145deg, #2c1a1d, #3a2024 58%, #211216);
   color: rgba(255, 176, 183, 0.72);
   font-weight: 700;
-}
-
-.thumbGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
-  gap: 0.5rem;
-  padding: 0.5rem;
-}
-
-.thumb {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid var(--line);
 }
 
 .infoCard {

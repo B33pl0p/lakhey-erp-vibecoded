@@ -922,6 +922,25 @@
     padding: 0 0 3.5rem;
   }
 
+  .hero {
+    min-height: clamp(620px, 88svh, 760px);
+    padding: 0;
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  .heroBgImage {
+    object-position: center 24%;
+    transform: scale(1.04);
+    filter: blur(3px) saturate(1.02);
+  }
+
+  .heroBgOverlay {
+    background:
+      linear-gradient(180deg, rgba(9, 18, 31, 0.12) 0%, rgba(9, 18, 31, 0.44) 30%, rgba(9, 18, 31, 0.78) 56%, rgba(9, 18, 31, 0.94) 100%),
+      radial-gradient(circle at 50% 18%, rgba(229, 84, 99, 0.16), transparent 46%);
+  }
+
   .hero h1 {
     max-width: 100%;
     font-size: clamp(1.95rem, 10vw, 2.6rem);
@@ -929,7 +948,14 @@
   }
 
   .heroCopy {
-    padding: 1rem 0.85rem;
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.2rem 0.95rem 1.05rem;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(11, 18, 30, 0.02) 0%, rgba(11, 18, 30, 0.28) 32%, rgba(11, 18, 30, 0.76) 55%, rgba(11, 18, 30, 0.92) 100%);
   }
 
   .heroText {
@@ -941,11 +967,16 @@
   .heroActions {
     width: 100%;
     gap: 0.55rem;
+    margin-top: 1.35rem;
   }
 
   .heroActions .primaryBtn {
     width: 100%;
     padding: 0.8rem 1rem;
+  }
+
+  .signalRow {
+    margin-top: 1.05rem;
   }
 
   .section {

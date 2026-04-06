@@ -1,5 +1,9 @@
+ "use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import styles from "./WebsiteNav.module.css";
 
 type WebsiteNavProps = {
@@ -7,6 +11,12 @@ type WebsiteNavProps = {
 };
 
 export function WebsiteNav({ className }: WebsiteNavProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  function closeMenu() {
+    setIsMenuOpen(false);
+  }
+
   return (
     <header className={`${styles.wrap} ${className || ""}`.trim()}>
       <nav className={styles.nav}>
@@ -21,20 +31,36 @@ export function WebsiteNav({ className }: WebsiteNavProps) {
           </span>
         </Link>
 
-        <div className={styles.links}>
-          <Link href="/">Home</Link>
-          <Link href="/products">Products</Link>
-          <Link href="/studio">Start Project</Link>
-          <Link href="/track">Track Order</Link>
-        </div>
+        <button
+          type="button"
+          className={styles.menuToggle}
+          aria-expanded={isMenuOpen}
+          aria-controls="website-nav-menu"
+          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          onClick={() => setIsMenuOpen((open) => !open)}
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
 
-        <div className={styles.actions}>
-          <Link href="/account" className={styles.secondaryBtn}>
-            Login / Signup
-          </Link>
-          <Link href="/products" className={styles.primaryBtn}>
-            Store
-          </Link>
+        <div
+          id="website-nav-menu"
+          className={`${styles.menuPanel} ${isMenuOpen ? styles.menuPanelOpen : ""}`.trim()}
+        >
+          <div className={styles.links}>
+            <Link href="/" onClick={closeMenu}>Home</Link>
+            <Link href="/products" onClick={closeMenu}>Products</Link>
+            <Link href="/studio" onClick={closeMenu}>Start Project</Link>
+            <Link href="/track" onClick={closeMenu}>Track Order</Link>
+          </div>
+
+          <div className={styles.actions}>
+            <Link href="/account" className={styles.secondaryBtn} onClick={closeMenu}>
+              Login / Signup
+            </Link>
+            <Link href="/products" className={styles.primaryBtn} onClick={closeMenu}>
+              Store
+            </Link>
+          </div>
         </div>
       </nav>
     </header>

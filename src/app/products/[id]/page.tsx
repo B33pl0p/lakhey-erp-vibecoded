@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
+import { ProductImageGallery } from "@/components/website/ProductImageGallery";
 import { getProduct } from "@/lib/api/products";
 import { getFilePreviewUrl } from "@/lib/api/storage";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -41,24 +42,11 @@ export default async function ProductDetailWebsitePage({ params }: Props) {
         </div>
 
         <div className={styles.layout}>
-          <div className={styles.gallery}>
-            {imageUrls.length > 0 ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrls[0]} alt={product.name} className={styles.mainImage} />
-                {imageUrls.length > 1 ? (
-                  <div className={styles.thumbGrid}>
-                    {imageUrls.slice(1).map((url, idx) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img key={`${url}-${idx}`} src={url} alt={`${product.name} ${idx + 2}`} className={styles.thumb} />
-                    ))}
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div className={styles.fallback}>Lakhey Labs</div>
-            )}
-          </div>
+          {imageUrls.length > 0 ? (
+            <ProductImageGallery productName={product.name} imageUrls={imageUrls} />
+          ) : (
+            <div className={styles.fallback}>Lakhey Labs</div>
+          )}
 
           <div className={styles.infoCard}>
             <p className={styles.category}>{formatProductCategoryLabel(product.category)}</p>
