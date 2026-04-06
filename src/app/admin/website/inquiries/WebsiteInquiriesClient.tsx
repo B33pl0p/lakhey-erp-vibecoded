@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/ToastContext";
-import {
-  WEBSITE_INQUIRY_STATUSES,
-  type WebsiteInquiry,
-} from "@/lib/api/websiteInquiries";
+import type { WebsiteInquiry } from "@/lib/api/websiteInquiries";
+import { WEBSITE_INQUIRY_STATUSES } from "@/lib/website-inquiries/constants";
 import styles from "./page.module.css";
 
 export function WebsiteInquiriesClient() {

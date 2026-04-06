@@ -4,9 +4,7 @@ import { ID, Query } from "node-appwrite";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "../appwrite/server";
 import { appwriteConfig } from "../appwrite/config";
-
-export const WEBSITE_INQUIRY_STATUSES = ["new", "contacted", "quoted", "closed"] as const;
-export type WebsiteInquiryStatus = typeof WEBSITE_INQUIRY_STATUSES[number];
+import type { WebsiteInquiryStatus } from "../website-inquiries/constants";
 
 export interface WebsiteInquiry {
   $id: string;

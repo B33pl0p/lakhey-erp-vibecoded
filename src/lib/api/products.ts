@@ -9,6 +9,7 @@ export interface Product {
   $id: string;
   name: string;
   category: string;
+  category_text?: string;
   description?: string;
   labor_cost: number;
   making_cost: number; // stored but also computed from BOM + labor_cost
@@ -23,6 +24,8 @@ export interface Product {
   $createdAt: string;
   $updatedAt: string;
 }
+
+const LEGACY_PRODUCT_CATEGORIES = ["lamp", "print", "enclosure", "decor", "other"] as const;
 
 function normalizeImageIds(input: unknown): string[] {
   if (Array.isArray(input)) {
@@ -48,9 +51,15 @@ function normalizeProduct(product: Product): Product {
   const merged = imageIds.length > 0
     ? imageIds
     : (product.image_id ? [product.image_id] : []);
+  const rawCategoryText = (product as unknown as { category_text?: unknown }).category_text;
+  const categoryText = typeof rawCategoryText === "string" && rawCategoryText.trim().length > 0
+    ? rawCategoryText
+    : undefined;
 
   return {
     ...product,
+    category: categoryText || product.category,
+    category_text: categoryText,
     image_ids: merged,
     image_id: merged[0],
   };
@@ -61,24 +70,32 @@ function isUnknownImageIdsAttributeError(err: unknown): boolean {
   return message.includes('Unknown attribute: "image_ids"');
 }
 
-function isInvalidProductCategoryError(err: unknown): boolean {
+function isUnknownCategoryTextAttributeError(err: unknown): boolean {
   const message = err instanceof Error ? err.message : String(err);
-  const lower = message.toLowerCase();
-  return lower.includes("category") && (
-    lower.includes("invalid document structure") ||
-    lower.includes("invalid enum value") ||
-    lower.includes("must be one of")
-  );
+  return message.includes('Unknown attribute: "category_text"');
 }
 
 function toProductSaveError(err: unknown): Error {
-  if (isInvalidProductCategoryError(err)) {
-    return new Error(
-      'This Appwrite environment still restricts product categories. Update the products.category enum before saving a new category.'
-    );
-  }
-
   return err instanceof Error ? err : new Error(String(err));
+}
+
+async function waitForAttributeAvailability(
+  databases: Awaited<ReturnType<typeof createAdminClient>>["databases"],
+  key: string
+) {
+  for (let i = 0; i < 12; i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const attr = await databases.getAttribute(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.products,
+        key
+      );
+      if ((attr as { status?: string }).status === "available") return;
+    } catch {
+      // keep polling
+    }
+  }
 }
 
 async function ensureImageIdsAttribute(databases: Awaited<ReturnType<typeof createAdminClient>>["databases"]) {
@@ -103,20 +120,31 @@ async function ensureImageIdsAttribute(databases: Awaited<ReturnType<typeof crea
     true
   );
 
-  // Wait until attribute is available before re-trying document mutation.
-  for (let i = 0; i < 12; i += 1) {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    try {
-      const attr = await databases.getAttribute(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.products,
-        "image_ids"
-      );
-      if ((attr as { status?: string }).status === "available") return;
-    } catch {
-      // keep polling
-    }
+  await waitForAttributeAvailability(databases, "image_ids");
+}
+
+async function ensureCategoryTextAttribute(databases: Awaited<ReturnType<typeof createAdminClient>>["databases"]) {
+  try {
+    await databases.getAttribute(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.products,
+      "category_text"
+    );
+    return;
+  } catch {
+    // Attribute doesn't exist yet; create it.
   }
+
+  await databases.createStringAttribute(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.products,
+    "category_text",
+    120,
+    false,
+    undefined
+  );
+
+  await waitForAttributeAvailability(databases, "category_text");
 }
 
 export async function getProducts(): Promise<Product[]> {
@@ -143,8 +171,14 @@ export async function getProduct(id: string): Promise<Product> {
 
 export async function createProduct(data: Partial<Product>) {
   const { databases } = await createAdminClient();
+  const normalizedCategory = typeof data.category === "string" ? data.category.trim() : "";
+  const legacyCategory = LEGACY_PRODUCT_CATEGORIES.includes(normalizedCategory as typeof LEGACY_PRODUCT_CATEGORIES[number])
+    ? normalizedCategory
+    : "other";
   const payload: Record<string, unknown> = {
     ...data,
+    category: legacyCategory,
+    category_text: normalizedCategory || legacyCategory,
     image_ids: data.image_ids,
     image_id: data.image_ids?.[0] || data.image_id,
     labor_cost: Number(data.labor_cost || 0),
@@ -165,28 +199,46 @@ export async function createProduct(data: Partial<Product>) {
       payload
     );
   } catch (err) {
-    if (!isUnknownImageIdsAttributeError(err)) throw toProductSaveError(err);
-
-    // Self-heal schema then retry once with full multi-image payload.
-    await ensureImageIdsAttribute(databases);
-    try {
-      doc = await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.products,
-        ID.unique(),
-        payload
-      );
-    } catch (retryErr) {
-      // Final fallback: persist single image only.
-      const fallbackPayload = { ...payload };
-      delete fallbackPayload.image_ids;
-      doc = await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.products,
-        ID.unique(),
-        fallbackPayload
-      );
-      console.warn("[products] Falling back to single image field on createProduct", retryErr);
+    if (isUnknownImageIdsAttributeError(err) || isUnknownCategoryTextAttributeError(err)) {
+      // Self-heal schema then retry once with full multi-image payload.
+      if (isUnknownImageIdsAttributeError(err)) {
+        await ensureImageIdsAttribute(databases);
+      }
+      if (isUnknownCategoryTextAttributeError(err)) {
+        await ensureCategoryTextAttribute(databases);
+      }
+      try {
+        doc = await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.products,
+          ID.unique(),
+          payload
+        );
+      } catch (retryErr) {
+        if (isUnknownCategoryTextAttributeError(retryErr)) {
+          await ensureCategoryTextAttribute(databases);
+          doc = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.products,
+            ID.unique(),
+            payload
+          );
+        } else {
+          // Final fallback: persist single image only.
+          const fallbackPayload = { ...payload };
+          delete fallbackPayload.image_ids;
+          delete fallbackPayload.category_text;
+          doc = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.products,
+            ID.unique(),
+            fallbackPayload
+          );
+          console.warn("[products] Falling back to single image field on createProduct", retryErr);
+        }
+      }
+    } else {
+      throw toProductSaveError(err);
     }
   }
 
@@ -196,9 +248,17 @@ export async function createProduct(data: Partial<Product>) {
 
 export async function updateProduct(id: string, data: Partial<Product>) {
   const { databases } = await createAdminClient();
+  const normalizedCategory = typeof data.category === "string" ? data.category.trim() : undefined;
+  const legacyCategory = normalizedCategory
+    ? (LEGACY_PRODUCT_CATEGORIES.includes(normalizedCategory as typeof LEGACY_PRODUCT_CATEGORIES[number])
+      ? normalizedCategory
+      : "other")
+    : undefined;
 
   const payload: Record<string, unknown> = {
     ...data,
+    ...(legacyCategory !== undefined && { category: legacyCategory }),
+    ...(normalizedCategory !== undefined && { category_text: normalizedCategory || legacyCategory || "other" }),
     ...(data.image_ids !== undefined && { image_ids: data.image_ids }),
     ...(data.image_ids !== undefined && { image_id: (data.image_ids[0] || null) as unknown as string }),
     ...(data.labor_cost !== undefined && { labor_cost: Number(data.labor_cost) }),
@@ -224,28 +284,46 @@ export async function updateProduct(id: string, data: Partial<Product>) {
       payload
     );
   } catch (err) {
-    if (!isUnknownImageIdsAttributeError(err)) throw toProductSaveError(err);
-
-    // Self-heal schema then retry once with full multi-image payload.
-    await ensureImageIdsAttribute(databases);
-    try {
-      await databases.updateDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.products,
-        id,
-        payload
-      );
-    } catch (retryErr) {
-      // Final fallback: persist single image only.
-      const fallbackPayload = { ...payload };
-      delete fallbackPayload.image_ids;
-      await databases.updateDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.products,
-        id,
-        fallbackPayload
-      );
-      console.warn("[products] Falling back to single image field on updateProduct", retryErr);
+    if (isUnknownImageIdsAttributeError(err) || isUnknownCategoryTextAttributeError(err)) {
+      // Self-heal schema then retry once with full multi-image payload.
+      if (isUnknownImageIdsAttributeError(err)) {
+        await ensureImageIdsAttribute(databases);
+      }
+      if (isUnknownCategoryTextAttributeError(err)) {
+        await ensureCategoryTextAttribute(databases);
+      }
+      try {
+        await databases.updateDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.products,
+          id,
+          payload
+        );
+      } catch (retryErr) {
+        if (isUnknownCategoryTextAttributeError(retryErr)) {
+          await ensureCategoryTextAttribute(databases);
+          await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.products,
+            id,
+            payload
+          );
+        } else {
+          // Final fallback: persist single image only.
+          const fallbackPayload = { ...payload };
+          delete fallbackPayload.image_ids;
+          delete fallbackPayload.category_text;
+          await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.products,
+            id,
+            fallbackPayload
+          );
+          console.warn("[products] Falling back to single image field on updateProduct", retryErr);
+        }
+      }
+    } else {
+      throw toProductSaveError(err);
     }
   }
 
