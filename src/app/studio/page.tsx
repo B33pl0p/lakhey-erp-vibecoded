@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useTransition } from "react";
+import { submitStudioInquiry } from "@/lib/api/customers";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
 import styles from "./page.module.css";
@@ -12,24 +13,38 @@ export default function StudioPage() {
   const [projectDescription, setProjectDescription] = useState("");
   const [materialPreference, setMaterialPreference] = useState("");
   const [fileLink, setFileLink] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Inquiring as: ${inquiryAs}`,
-      `Material preference: ${materialPreference || "Not specified"}`,
-      "",
-      "Project Description:",
-      projectDescription,
-      "",
-      `3D Files Link: ${fileLink || "Will send later by email"}`,
-    ].join("\n");
+    setError(null);
+    setSuccess(null);
 
-    window.location.href = `mailto:lakheylabs@gmail.com?subject=${encodeURIComponent(
-      "Custom 3D Printing Inquiry"
-    )}&body=${encodeURIComponent(body)}`;
+    startTransition(async () => {
+      const result = await submitStudioInquiry({
+        name,
+        email,
+        inquiryAs,
+        materialPreference,
+        projectDescription,
+        fileLink,
+      });
+
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      setSuccess("Your inquiry was submitted successfully. Our team can now review it from the admin panel.");
+      setName("");
+      setEmail("");
+      setInquiryAs("Business");
+      setProjectDescription("");
+      setMaterialPreference("");
+      setFileLink("");
+    });
   }
 
   return (
@@ -114,8 +129,12 @@ export default function StudioPage() {
               onChange={(e) => setFileLink(e.target.value)}
             />
           </label>
-          <button type="submit">Send Project Request</button>
+          <button type="submit" disabled={isPending}>
+            {isPending ? "Sending..." : "Send Project Request"}
+          </button>
         </form>
+        {error ? <p className={styles.error}>{error}</p> : null}
+        {success ? <p className={styles.success}>{success}</p> : null}
       </section>
       <WebsiteFooter />
     </main>

@@ -198,6 +198,25 @@
   cursor: pointer;
 }
 
+.form button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.error,
+.success {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.error {
+  color: #ffb6bc;
+}
+
+.success {
+  color: #9cffd9;
+}
+
 @media (max-width: 900px) {
   .page {
     padding: 1rem 0.95rem 2.4rem;
