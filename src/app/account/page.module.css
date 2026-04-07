@@ -50,7 +50,8 @@
 }
 
 .card,
-.loggedInBox {
+.loggedInBox,
+.historyCard {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--surface);
@@ -61,7 +62,8 @@
 }
 
 .card h2,
-.loggedInBox h2 {
+.loggedInBox h2,
+.historyCard h2 {
   font-size: 1.22rem;
 }
 
@@ -123,6 +125,86 @@
   gap: 0.7rem;
 }
 
+.loggedInLayout {
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: 1rem;
+}
+
+.historyCard {
+  gap: 1rem;
+}
+
+.historyHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.historyHead p {
+  margin-top: 0.3rem;
+  color: var(--muted);
+}
+
+.historyList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.historyItem {
+  display: grid;
+  gap: 0.55rem;
+  border: 1px solid rgba(232, 57, 70, 0.18);
+  border-radius: 14px;
+  background: rgba(20, 21, 25, 0.82);
+  padding: 0.9rem;
+}
+
+.historyItem strong {
+  display: block;
+}
+
+.historyItem > div:first-child span {
+  display: block;
+  margin-top: 0.28rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.historyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  color: var(--muted-strong);
+  font-size: 0.9rem;
+}
+
+.statusBadge {
+  border: 1px solid rgba(232, 57, 70, 0.2);
+  border-radius: 999px;
+  background: rgba(230, 57, 70, 0.14);
+  color: #ffb6bc;
+  padding: 0.28rem 0.62rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.emptyState {
+  border: 1px dashed rgba(232, 57, 70, 0.2);
+  border-radius: 14px;
+  padding: 1rem;
+  background: rgba(20, 21, 25, 0.72);
+}
+
+.emptyState p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+}
+
 .error {
   margin-top: 0.9rem;
   color: #ff9ea3;
@@ -138,6 +220,10 @@
   }
 
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .loggedInLayout {
     grid-template-columns: 1fr;
   }
 

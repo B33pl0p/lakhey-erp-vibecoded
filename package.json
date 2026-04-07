@@ -11,6 +11,7 @@
     "categories:sync": "node scripts/update-product-category-enum.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "appwrite": "^23.0.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",

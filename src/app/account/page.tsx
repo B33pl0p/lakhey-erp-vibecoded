@@ -1,5 +1,5 @@
 import { AccountClient } from "./AccountClient";
-import { getCustomerSessionUser } from "@/lib/api/customerAuth";
+import { getCustomerAccountSnapshot } from "@/lib/api/customerAuth";
 
 interface Props {
   searchParams: Promise<{ next?: string }>;
@@ -7,7 +7,7 @@ interface Props {
 
 export default async function AccountPage({ searchParams }: Props) {
   const { next } = await searchParams;
-  const user = await getCustomerSessionUser();
+  const { user, orders } = await getCustomerAccountSnapshot();
 
-  return <AccountClient nextPath={next || "/order"} user={user} />;
+  return <AccountClient nextPath={next || "/order"} user={user} orders={orders} />;
 }

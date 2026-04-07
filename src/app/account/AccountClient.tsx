@@ -7,15 +7,26 @@ import {
   loginCustomerAction,
   logoutCustomerAction,
   signupCustomerAction,
+  type WebsiteCustomerOrderSummary,
 } from "@/lib/api/customerAuth";
+import { formatCurrency } from "@/lib/utils/currency";
 import styles from "./page.module.css";
 
 type Props = {
   nextPath: string;
   user: { name?: string; email: string } | null;
+  orders: WebsiteCustomerOrderSummary[];
 };
 
-export function AccountClient({ nextPath, user }: Props) {
+function toTitleCase(input: string) {
+  return input
+    .replaceAll("_", " ")
+    .split(" ")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
+export function AccountClient({ nextPath, user, orders }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -63,18 +74,59 @@ export function AccountClient({ nextPath, user }: Props) {
         </div>
 
         {user ? (
-          <div className={styles.loggedInBox}>
-            <h2>You are logged in</h2>
-            <p>
-              <strong>{user.name || "Customer"}</strong>
-              <span>{user.email}</span>
-            </p>
-            <div className={styles.loggedInActions}>
-              <a href={nextPath} className={styles.primaryBtn}>Continue to Order</a>
-              <a href="/track" className={styles.secondaryBtn}>Track Order</a>
-              <form action={logoutCustomerAction}>
-                <button className={styles.secondaryBtn} type="submit">Logout</button>
-              </form>
+          <div className={styles.loggedInLayout}>
+            <div className={styles.loggedInBox}>
+              <h2>Your account</h2>
+              <p>
+                <strong>{user.name || "Customer"}</strong>
+                <span>{user.email}</span>
+              </p>
+              <div className={styles.loggedInActions}>
+                <a href={nextPath} className={styles.primaryBtn}>Place New Order</a>
+                <a href="/track" className={styles.secondaryBtn}>Track My Orders</a>
+                <form action={logoutCustomerAction}>
+                  <button className={styles.secondaryBtn} type="submit">Logout</button>
+                </form>
+              </div>
+            </div>
+
+            <div className={styles.historyCard}>
+              <div className={styles.historyHead}>
+                <div>
+                  <h2>Order history</h2>
+                  <p>Your recent website orders and latest statuses.</p>
+                </div>
+                {orders.length > 0 ? (
+                  <a href="/track" className={styles.secondaryBtn}>Open Tracker</a>
+                ) : null}
+              </div>
+
+              {orders.length > 0 ? (
+                <div className={styles.historyList}>
+                  {orders.map((order) => (
+                    <a key={order.orderId} href={`/track?order=${order.orderId}`} className={styles.historyItem}>
+                      <div>
+                        <strong>{order.title}</strong>
+                        <span>Order #{order.orderId}</span>
+                      </div>
+                      <div className={styles.historyMeta}>
+                        <span className={styles.statusBadge}>{toTitleCase(order.status)}</span>
+                        <span>{formatCurrency(order.totalPrice)}</span>
+                        <span>{new Date(order.updatedAt).toLocaleDateString("en-NP", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <strong>No orders yet</strong>
+                  <p>Once you place an order, it will appear here automatically.</p>
+                </div>
+              )}
             </div>
           </div>
         ) : (

@@ -38,6 +38,16 @@ export type WebsiteTrackedOrder = {
   notes?: string;
 };
 
+export type WebsiteCustomerOrderSummary = {
+  orderId: string;
+  title: string;
+  status: string;
+  quantity: number;
+  totalPrice: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 async function setCustomerSessionCookies(secret: string) {
   const cookieStore = await cookies();
 
@@ -118,6 +128,44 @@ async function ensureCustomerRecord(data: {
   return created.$id;
 }
 
+async function getCustomerRecordByEmail(email: string) {
+  const { databases } = await createAdminClient();
+  const response = await databases.listDocuments(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.customers,
+    [Query.equal("email", email), Query.limit(1)]
+  );
+
+  return response.documents[0] ?? null;
+}
+
+function toTrackedOrder(order: Record<string, unknown>): WebsiteTrackedOrder {
+  return {
+    orderId: String(order.$id),
+    title: String(order.title || "Order"),
+    status: String(order.status || "pending"),
+    quantity: Number(order.quantity || 0),
+    unitPrice: Number(order.unit_price || 0),
+    totalPrice: Number(order.total_price || 0),
+    createdAt: String(order.$createdAt),
+    updatedAt: String(order.$updatedAt),
+    deliveryAddress: String(order.delivery_address || ""),
+    notes: String(order.custom_notes || ""),
+  };
+}
+
+function toOrderSummary(order: WebsiteTrackedOrder): WebsiteCustomerOrderSummary {
+  return {
+    orderId: order.orderId,
+    title: order.title,
+    status: order.status,
+    quantity: order.quantity,
+    totalPrice: order.totalPrice,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+  };
+}
+
 export async function getCustomerSessionUser(): Promise<{
   name?: string;
   email: string;
@@ -137,6 +185,39 @@ export async function getCustomerSessionUser(): Promise<{
   } catch {
     return null;
   }
+}
+
+export async function getCustomerWebsiteOrders(): Promise<WebsiteTrackedOrder[]> {
+  const user = await getCustomerSessionUser();
+  if (!user) return [];
+
+  const customer = await getCustomerRecordByEmail(user.email);
+  if (!customer?.$id) return [];
+
+  const { databases } = await createAdminClient();
+  const response = await databases.listDocuments(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.orders,
+    [Query.equal("customer_id", String(customer.$id)), Query.orderDesc("$createdAt"), Query.limit(100)]
+  );
+
+  return response.documents.map((order) => toTrackedOrder(order as unknown as Record<string, unknown>));
+}
+
+export async function getCustomerAccountSnapshot(): Promise<{
+  user: { name?: string; email: string } | null;
+  orders: WebsiteCustomerOrderSummary[];
+}> {
+  const user = await getCustomerSessionUser();
+  if (!user) {
+    return { user: null, orders: [] };
+  }
+
+  const orders = await getCustomerWebsiteOrders();
+  return {
+    user,
+    orders: orders.map(toOrderSummary),
+  };
 }
 
 export async function signupCustomerAction(input: CustomerAuthInput): Promise<{ error?: string }> {
@@ -252,13 +333,14 @@ export async function createWebsiteOrderAction(input: WebsiteOrderInput): Promis
 
 export async function trackWebsiteOrderAction(input: {
   orderId: string;
-  email: string;
+  email?: string;
 }): Promise<{ error?: string; order?: WebsiteTrackedOrder }> {
   const orderId = input.orderId.trim();
-  const email = input.email.trim().toLowerCase();
+  const email = input.email?.trim().toLowerCase() || "";
+  const sessionUser = await getCustomerSessionUser();
 
-  if (!orderId || !email) {
-    return { error: "Please provide order ID and email." };
+  if (!orderId) {
+    return { error: "Please provide your order ID." };
   }
 
   try {
@@ -277,25 +359,19 @@ export async function trackWebsiteOrderAction(input: {
     );
 
     const customerEmail = String(customer.email || "").trim().toLowerCase();
-    if (!customerEmail || customerEmail !== email) {
+    if (sessionUser?.email) {
+      const sessionEmail = sessionUser.email.trim().toLowerCase();
+      if (!customerEmail || customerEmail !== sessionEmail) {
+        return { error: "That order does not belong to your account." };
+      }
+    } else if (!email || customerEmail !== email) {
       return { error: "Order not found for this email." };
     }
 
     return {
-      order: {
-        orderId: String(order.$id),
-        title: String(order.title || "Order"),
-        status: String(order.status || "pending"),
-        quantity: Number(order.quantity || 0),
-        unitPrice: Number(order.unit_price || 0),
-        totalPrice: Number(order.total_price || 0),
-        createdAt: String(order.$createdAt),
-        updatedAt: String(order.$updatedAt),
-        deliveryAddress: String(order.delivery_address || ""),
-        notes: String(order.custom_notes || ""),
-      },
+      order: toTrackedOrder(order as unknown as Record<string, unknown>),
     };
   } catch {
-    return { error: "Order not found. Please check the order ID and email." };
+    return { error: sessionUser ? "Order not found in your account." : "Order not found. Please check the order ID and email." };
   }
 }
