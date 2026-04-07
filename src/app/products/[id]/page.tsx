@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AddToCartButton } from "@/components/website/AddToCartButton";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
 import { ProductImageGallery } from "@/components/website/ProductImageGallery";
@@ -31,6 +32,7 @@ export default async function ProductDetailWebsitePage({ params }: Props) {
 
   const imageIds = product.image_ids?.length ? product.image_ids : (product.image_id ? [product.image_id] : []);
   const imageUrls = await Promise.all(imageIds.map((imageId) => getFilePreviewUrl(imageId, 1200, 900)));
+  const categoryLabel = formatProductCategoryLabel(product.category);
 
   return (
     <main className={styles.page}>
@@ -38,7 +40,7 @@ export default async function ProductDetailWebsitePage({ params }: Props) {
         <WebsiteNav />
         <div className={styles.topbar}>
           <Link href="/products" className={styles.backLink}>← Back to Products</Link>
-          <Link href={`/order?product=${product.$id}`} className={styles.orderBtn}>Order This Product</Link>
+          <Link href="/cart" className={styles.orderBtn}>Open Cart</Link>
         </div>
 
         <div className={styles.layout}>
@@ -49,14 +51,27 @@ export default async function ProductDetailWebsitePage({ params }: Props) {
           )}
 
           <div className={styles.infoCard}>
-            <p className={styles.category}>{formatProductCategoryLabel(product.category)}</p>
+            <p className={styles.category}>{categoryLabel}</p>
             <h1>{product.name}</h1>
             <p className={styles.desc}>{product.description || "Premium 3D printed product by Lakhey Labs."}</p>
 
             <div className={styles.price}>{formatCurrency(product.selling_price)}</div>
 
             <div className={styles.actions}>
-              <Link href={`/order?product=${product.$id}`} className={styles.orderBtn}>Order Now</Link>
+              <AddToCartButton
+                product={{
+                  id: product.$id,
+                  name: product.name,
+                  category: categoryLabel,
+                  description: product.description || "",
+                  price: product.selling_price,
+                  imageUrl: imageUrls[0] || null,
+                }}
+                className={styles.orderBtn}
+                idleLabel="Add to Cart"
+                addedLabel="Added to Cart"
+              />
+              <Link href="/cart" className={styles.inquireBtn}>Go to Cart</Link>
               <Link href="/studio" className={styles.inquireBtn}>Custom Inquiry</Link>
             </div>
           </div>

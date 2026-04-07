@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AddToCartButton } from "@/components/website/AddToCartButton";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
 import { getProducts } from "@/lib/api/products";
@@ -24,6 +25,7 @@ export default async function ProductsPage({ searchParams }: Props) {
         id: p.$id,
         name: p.name,
         category: p.category,
+        categoryLabel: formatProductCategoryLabel(p.category),
         description: p.description || "",
         price: p.selling_price,
         imageUrl: primaryImageId ? await getFilePreviewUrl(primaryImageId, 900, 700) : null,
@@ -58,14 +60,24 @@ export default async function ProductsPage({ searchParams }: Props) {
                 )}
               </Link>
               <div className={styles.body}>
-                <p className={styles.category}>{formatProductCategoryLabel(product.category)}</p>
+                <p className={styles.category}>{product.categoryLabel}</p>
                 <h2>{product.name}</h2>
                 <p>{product.description || "Premium 3D printed product by Lakhey Labs."}</p>
                 <div className={styles.row}>
                   <strong>{formatCurrency(product.price)}</strong>
                   <div className={styles.actions}>
                     <Link href={`/products/${product.id}`} className={styles.secondaryBtn}>View</Link>
-                    <Link href={`/order?product=${product.id}`} className={styles.primaryBtn}>Order</Link>
+                    <AddToCartButton
+                      product={{
+                        id: product.id,
+                        name: product.name,
+                        category: product.categoryLabel,
+                        description: product.description,
+                        price: product.price,
+                        imageUrl: product.imageUrl,
+                      }}
+                      className={styles.primaryBtn}
+                    />
                   </div>
                 </div>
               </div>

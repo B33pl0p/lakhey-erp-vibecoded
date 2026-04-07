@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { AddToCartButton } from "@/components/website/AddToCartButton";
 import { formatCurrency } from "@/lib/utils/currency";
 import { formatProductCategoryLabel } from "@/lib/products/categories";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
@@ -42,9 +44,36 @@ const infoCards = [
   },
 ];
 
+function shuffleProducts(items: WebsiteProduct[]) {
+  return [...items].sort((a, b) => {
+    const aScore = Array.from(a.id).reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 3), 0);
+    const bScore = Array.from(b.id).reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 3), 0);
+    return aScore - bScore;
+  });
+}
+
 export function LandingPage({ products }: LandingPageProps) {
-  const showcaseProducts = products.slice(0, 4);
+  const [rotation, setRotation] = useState(0);
   const heroImage = "/website/hero.png";
+  const showcasePool = useMemo(() => shuffleProducts(products.slice(0, 8)), [products]);
+
+  useEffect(() => {
+    if (showcasePool.length <= 2) return;
+
+    const timer = window.setInterval(() => {
+      setRotation((current) => current + 1);
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, [showcasePool.length]);
+
+  const showcaseProducts = useMemo(() => {
+    if (showcasePool.length === 0) return [];
+    const normalizedRotation = rotation % showcasePool.length;
+    const rotated = showcasePool.slice(normalizedRotation).concat(showcasePool.slice(0, normalizedRotation));
+    return rotated.slice(0, 2);
+  }, [rotation, showcasePool]);
+
   return (
     <main className={styles.page}>
       <div className={styles.bgBase} />
@@ -125,9 +154,12 @@ export function LandingPage({ products }: LandingPageProps) {
         <div className={styles.showcaseGrid}>
           {showcaseProducts.length > 0 ? (
             showcaseProducts.map((product, index) => (
-              <article key={product.id} className={styles.productCard}>
+              <article
+                key={`${product.id}-${rotation}-${index}`}
+                className={`${styles.productCard} ${index === 0 ? styles.productCardHero : styles.productCardFeature} ${index === 0 ? styles.slideCardLeft : styles.slideCardRight}`.trim()}
+              >
                 <div className={styles.productMedia}>
-                  <div className={styles.mediaBadge}>Build {String(index + 1).padStart(2, "0")}</div>
+                  <div className={styles.mediaBadge}>{index === 0 ? "Featured Build" : "Next Highlight"}</div>
                   {product.imageUrl ? (
                     <Image src={product.imageUrl} alt={product.name} fill unoptimized className={styles.productImage} />
                   ) : (
@@ -144,12 +176,19 @@ export function LandingPage({ products }: LandingPageProps) {
                       <Link href={`/products/${product.id}`} className={styles.cardBtn}>
                         View
                       </Link>
-                      <Link href={`/order?product=${product.id}`} className={styles.cardBtn}>
-                        Order
-                      </Link>
-                      <Link href="/studio" className={styles.cardBtn}>
-                        Inquire
-                      </Link>
+                      <AddToCartButton
+                        product={{
+                          id: product.id,
+                          name: product.name,
+                          category: formatProductCategoryLabel(product.category),
+                          description: product.description,
+                          price: product.price,
+                          imageUrl: product.imageUrl,
+                        }}
+                        className={styles.cardPrimaryBtn}
+                        idleLabel="Add to Cart"
+                        addedLabel="Added"
+                      />
                     </div>
                   </div>
                 </div>
@@ -158,9 +197,12 @@ export function LandingPage({ products }: LandingPageProps) {
           ) : (
             ["Prototype Housing", "Desk Utility Rack", "Architectural Volume Study", "Custom Bracket System"].map(
               (name, index) => (
-                <article key={name} className={styles.productCard}>
+                <article
+                  key={name}
+                  className={`${styles.productCard} ${index === 0 ? styles.productCardHero : styles.productCardFeature}`.trim()}
+                >
                   <div className={styles.productMedia}>
-                    <div className={styles.mediaBadge}>Build {String(index + 1).padStart(2, "0")}</div>
+                    <div className={styles.mediaBadge}>{index === 0 ? "Featured Build" : "Next Highlight"}</div>
                     <div className={styles.imageFallback}>Built by Us</div>
                   </div>
                   <div className={styles.productBody}>
@@ -173,11 +215,8 @@ export function LandingPage({ products }: LandingPageProps) {
                       <Link href="/products" className={styles.cardBtn}>
                         View
                       </Link>
-                      <Link href="/order" className={styles.cardBtn}>
-                        Order
-                      </Link>
-                      <Link href="/studio" className={styles.cardBtn}>
-                        Inquire
+                      <Link href="/products" className={styles.cardPrimaryBtn}>
+                        Add to Cart
                       </Link>
                     </div>
                   </div>
@@ -187,6 +226,16 @@ export function LandingPage({ products }: LandingPageProps) {
             )
           )}
         </div>
+        {showcaseProducts.length > 1 ? (
+          <div className={styles.showcaseIndicators} aria-hidden="true">
+            {showcasePool.map((product, index) => (
+              <span
+                key={product.id}
+                className={`${styles.showcaseDot} ${index === rotation % showcasePool.length ? styles.showcaseDotActive : ""}`.trim()}
+              />
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className={styles.pivot}>

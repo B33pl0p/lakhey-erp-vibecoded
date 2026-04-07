@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Plus, Menu, LogOut, Bell, RefreshCw } from "lucide-react";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import styles from "./Topbar.module.css";
 import Link from "next/link";
 import { logoutAction } from "@/lib/api/auth";
@@ -16,6 +16,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastSeen, setLastSeen] = useState(0);
+  const notifWrapRef = useRef<HTMLDivElement | null>(null);
   const [feed, setFeed] = useState<{
     total: number;
     newOrders: number;
@@ -38,14 +40,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   };
 
   const unreadKey = "admin-notifications-last-seen";
-  const lastSeen = useMemo(() => {
-    if (typeof window === "undefined") return 0;
-    return Number(window.localStorage.getItem(unreadKey) || "0");
-  }, []);
-
-  const unreadCount = useMemo(() => {
+  const unreadCount = (() => {
     return feed.notifications.filter((n) => new Date(n.createdAt).getTime() > lastSeen).length;
-  }, [feed.notifications, lastSeen]);
+  })();
 
   async function fetchNotifications() {
     setIsLoading(true);
@@ -71,8 +68,39 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    setLastSeen(Number(window.localStorage.getItem(unreadKey) || "0"));
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
-    window.localStorage.setItem(unreadKey, String(Date.now()));
+    const nextLastSeen = Date.now();
+    window.localStorage.setItem(unreadKey, String(nextLastSeen));
+    setLastSeen(nextLastSeen);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!notifWrapRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, [isOpen]);
 
   return (
@@ -90,7 +118,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </div>
 
       <div className={styles.right}>
-        <div className={styles.notifWrap}>
+        <div className={styles.notifWrap} ref={notifWrapRef}>
           <button
             type="button"
             className={styles.iconButton}

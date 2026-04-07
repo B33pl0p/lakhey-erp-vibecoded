@@ -46,9 +46,11 @@
 }
 
 .orderBtn {
+  border: 0;
   color: var(--ink);
   background: linear-gradient(135deg, var(--accent), var(--brand));
   padding: 0.62rem 1rem;
+  cursor: pointer;
 }
 
 .layout {

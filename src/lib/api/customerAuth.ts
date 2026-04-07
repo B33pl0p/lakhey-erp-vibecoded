@@ -25,6 +25,16 @@ type WebsiteOrderInput = {
   notes?: string;
 };
 
+type WebsiteCartOrderInput = {
+  items: Array<{
+    productId: string;
+    quantity: number;
+  }>;
+  phone?: string;
+  address: string;
+  notes?: string;
+};
+
 export type WebsiteTrackedOrder = {
   orderId: string;
   title: string;
@@ -329,6 +339,66 @@ export async function createWebsiteOrderAction(input: WebsiteOrderInput): Promis
   });
 
   return { orderId: order.$id };
+}
+
+export async function createWebsiteCartOrderAction(
+  input: WebsiteCartOrderInput
+): Promise<{ error?: string; orderIds?: string[] }> {
+  const user = await getCustomerSessionUser();
+  if (!user) {
+    return { error: "Please login to place an order." };
+  }
+
+  const items = input.items
+    .map((item) => ({
+      productId: item.productId,
+      quantity: Number(item.quantity),
+    }))
+    .filter((item) => item.productId && !Number.isNaN(item.quantity) && item.quantity > 0);
+
+  if (items.length === 0) {
+    return { error: "Your cart is empty." };
+  }
+
+  const customerId = await ensureCustomerRecord({
+    name: user.name || "Customer",
+    email: user.email,
+    phone: input.phone?.trim(),
+    address: input.address?.trim(),
+  });
+
+  const products = await Promise.all(items.map((item) => getProduct(item.productId)));
+  const inactiveProduct = products.find((product) => !product?.is_active);
+
+  if (inactiveProduct) {
+    return { error: `${inactiveProduct.name} is not available right now.` };
+  }
+
+  const orderIds: string[] = [];
+
+  for (const item of items) {
+    const product = products.find((entry) => entry.$id === item.productId);
+    if (!product) {
+      return { error: "One of the cart products could not be loaded." };
+    }
+
+    const order = await createOrder({
+      customer_id: customerId,
+      is_product: true,
+      product_id: product.$id,
+      title: `${product.name} - Website Cart Order`,
+      status: "pending",
+      quantity: item.quantity,
+      unit_price: product.selling_price,
+      total_price: product.selling_price * item.quantity,
+      delivery_address: input.address.trim(),
+      custom_notes: input.notes?.trim(),
+    });
+
+    orderIds.push(order.$id);
+  }
+
+  return { orderIds };
 }
 
 export async function trackWebsiteOrderAction(input: {

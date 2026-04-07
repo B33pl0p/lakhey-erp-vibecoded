@@ -7,15 +7,20 @@ import { getFilePreviewUrl } from "@/lib/api/storage";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  searchParams: Promise<{ product?: string }>;
+  searchParams: Promise<{ product?: string; cart?: string }>;
 }
 
 export default async function OrderPage({ searchParams }: Props) {
-  const { product } = await searchParams;
+  const { product, cart } = await searchParams;
   const user = await getCustomerSessionUser();
+  const isCartCheckout = cart === "1";
 
   if (!user) {
-    const next = product ? `/order?product=${encodeURIComponent(product)}` : "/order";
+    const next = isCartCheckout
+      ? "/order?cart=1"
+      : product
+        ? `/order?product=${encodeURIComponent(product)}`
+        : "/order";
     redirect(`/account?next=${encodeURIComponent(next)}`);
   }
 
@@ -35,5 +40,12 @@ export default async function OrderPage({ searchParams }: Props) {
       })
   );
 
-  return <OrderPageClient products={products} selectedProductId={product} userEmail={user.email} />;
+  return (
+    <OrderPageClient
+      products={products}
+      selectedProductId={product}
+      userEmail={user.email}
+      checkoutMode={isCartCheckout ? "cart" : "single"}
+    />
+  );
 }

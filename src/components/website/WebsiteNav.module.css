@@ -63,7 +63,8 @@
   min-width: 0;
 }
 
-.links a {
+.links a,
+.cartLink {
   border: 1px solid rgba(232, 57, 70, 0.2);
   border-radius: 999px;
   padding: 0.38rem 0.72rem;
@@ -168,7 +169,8 @@
     gap: 0.45rem;
   }
 
-  .links a {
+  .links a,
+  .cartLink {
     width: 100%;
     text-align: left;
     padding: 0.7rem 0.9rem;

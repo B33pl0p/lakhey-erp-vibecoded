@@ -1,9 +1,10 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { CartLink } from "@/components/website/CartLink";
 import styles from "./WebsiteNav.module.css";
 
 type WebsiteNavProps = {
@@ -49,6 +50,7 @@ export function WebsiteNav({ className }: WebsiteNavProps) {
           <div className={styles.links}>
             <Link href="/" onClick={closeMenu}>Home</Link>
             <Link href="/products" onClick={closeMenu}>Products</Link>
+            <CartLink className={styles.cartLink} onClick={closeMenu} />
             <Link href="/studio" onClick={closeMenu}>Start Project</Link>
             <Link href="/track" onClick={closeMenu}>Track Order</Link>
           </div>
@@ -57,9 +59,7 @@ export function WebsiteNav({ className }: WebsiteNavProps) {
             <Link href="/account" className={styles.secondaryBtn} onClick={closeMenu}>
               Login / Signup
             </Link>
-            <Link href="/products" className={styles.primaryBtn} onClick={closeMenu}>
-              Store
-            </Link>
+            <CartLink className={styles.primaryBtn} onClick={closeMenu} />
           </div>
         </div>
       </nav>
