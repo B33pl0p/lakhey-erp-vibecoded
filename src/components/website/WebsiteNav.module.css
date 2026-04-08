@@ -81,8 +81,19 @@
   gap: 0.5rem;
 }
 
+.accountArea {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.accountArea form {
+  display: contents;
+}
+
 .secondaryBtn,
-.primaryBtn {
+.primaryBtn,
+.accountBtn {
   border-radius: 999px;
   padding: 0.46rem 0.8rem;
   font-size: 0.82rem;
@@ -90,10 +101,17 @@
   white-space: nowrap;
 }
 
-.secondaryBtn {
+.secondaryBtn,
+.accountBtn {
   border: 1px solid rgba(232, 57, 70, 0.24);
   color: #d8dbe1;
   background: rgba(30, 31, 36, 0.84);
+}
+
+.accountBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
 }
 
 .primaryBtn {
@@ -183,8 +201,16 @@
     width: 100%;
   }
 
+  .accountArea {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    width: 100%;
+  }
+
   .secondaryBtn,
-  .primaryBtn {
+  .primaryBtn,
+  .accountBtn {
     display: inline-flex;
     text-align: center;
     justify-content: center;

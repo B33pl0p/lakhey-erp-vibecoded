@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import { Query } from "node-appwrite";
-import { createAdminClient, createSessionClient } from "@/lib/appwrite/server";
+import { createAdminClient } from "@/lib/appwrite/server";
 import { appwriteConfig } from "@/lib/appwrite/config";
+import { ensureAdminSession } from "@/lib/api/adminAuth";
 
 export const dynamic = "force-dynamic";
-
-async function ensureAdminSession() {
-  const { account } = await createSessionClient();
-  await account.get();
-}
 
 export async function GET() {
   try {

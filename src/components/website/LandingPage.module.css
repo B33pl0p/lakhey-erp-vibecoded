@@ -712,8 +712,8 @@
 
 .slideCardLeft,
 .slideCardRight {
-  animation-duration: 0.7s;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: 1.05s;
+  animation-timing-function: cubic-bezier(0.2, 0.82, 0.2, 1);
   animation-fill-mode: both;
 }
 
@@ -723,35 +723,38 @@
 
 .slideCardRight {
   animation-name: showcaseSlideRight;
+  animation-delay: 0.08s;
 }
 
 @keyframes showcaseSlideLeft {
   from {
     opacity: 0;
-    transform: translateX(-28px) translateY(10px);
+    transform: translateX(-10px) translateY(8px) scale(0.988);
   }
   to {
     opacity: 1;
-    transform: translateX(0) translateY(0);
+    transform: translateX(0) translateY(0) scale(1);
   }
 }
 
 @keyframes showcaseSlideRight {
   from {
     opacity: 0;
-    transform: translateX(28px) translateY(10px);
+    transform: translateX(10px) translateY(8px) scale(0.988);
   }
   to {
     opacity: 1;
-    transform: translateX(0) translateY(0);
+    transform: translateX(0) translateY(0) scale(1);
   }
 }
 
 .productMedia {
+  display: block;
   position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: linear-gradient(145deg, #2c1a1d, #3a2024 58%, #211216);
+  color: inherit;
 }
 
 .productMedia::after {

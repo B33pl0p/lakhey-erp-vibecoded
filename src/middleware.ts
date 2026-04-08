@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminSessionMarker } from '@/lib/auth/adminSession';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const session = request.cookies.get('appwrite-session');
   const adminSession = request.cookies.get('admin-session');
   const { pathname } = request.nextUrl;
 
   const isPublicPath = pathname === '/login';
   const isAdminPath = pathname === '/admin' || pathname.startsWith('/admin/');
-  const hasAdminSession = !!session?.value && adminSession?.value === '1';
+  const hasAdminSession = !!session?.value
+    && !!adminSession?.value
+    && await verifyAdminSessionMarker(session.value, adminSession.value);
 
   if (!hasAdminSession && isAdminPath) {
     const loginUrl = new URL('/login', request.url);

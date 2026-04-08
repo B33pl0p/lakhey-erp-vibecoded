@@ -55,7 +55,7 @@ function shuffleProducts(items: WebsiteProduct[]) {
 export function LandingPage({ products }: LandingPageProps) {
   const [rotation, setRotation] = useState(0);
   const heroImage = "/website/hero.png";
-  const showcasePool = useMemo(() => shuffleProducts(products.slice(0, 8)), [products]);
+  const showcasePool = useMemo(() => shuffleProducts(products.slice(0, 10)), [products]);
 
   useEffect(() => {
     if (showcasePool.length <= 2) return;
@@ -158,14 +158,14 @@ export function LandingPage({ products }: LandingPageProps) {
                 key={`${product.id}-${rotation}-${index}`}
                 className={`${styles.productCard} ${index === 0 ? styles.productCardHero : styles.productCardFeature} ${index === 0 ? styles.slideCardLeft : styles.slideCardRight}`.trim()}
               >
-                <div className={styles.productMedia}>
+                <Link href={`/products/${product.id}`} className={styles.productMedia}>
                   <div className={styles.mediaBadge}>{index === 0 ? "Featured Build" : "Next Highlight"}</div>
                   {product.imageUrl ? (
                     <Image src={product.imageUrl} alt={product.name} fill unoptimized className={styles.productImage} />
                   ) : (
                     <div className={styles.imageFallback}>Built by Us</div>
                   )}
-                </div>
+                </Link>
                 <div className={styles.productBody}>
                   <p className={styles.productCategory}>{formatProductCategoryLabel(product.category)}</p>
                   <h3>{product.name}</h3>
@@ -201,10 +201,10 @@ export function LandingPage({ products }: LandingPageProps) {
                   key={name}
                   className={`${styles.productCard} ${index === 0 ? styles.productCardHero : styles.productCardFeature}`.trim()}
                 >
-                  <div className={styles.productMedia}>
+                  <Link href="/products" className={styles.productMedia}>
                     <div className={styles.mediaBadge}>{index === 0 ? "Featured Build" : "Next Highlight"}</div>
                     <div className={styles.imageFallback}>Built by Us</div>
-                  </div>
+                  </Link>
                   <div className={styles.productBody}>
                     <p className={styles.productCategory}>Sample Build</p>
                     <h3>{name}</h3>

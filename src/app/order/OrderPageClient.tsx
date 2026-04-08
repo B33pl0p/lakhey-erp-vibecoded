@@ -23,10 +23,19 @@ type Props = {
   products: ProductOption[];
   selectedProductId?: string;
   userEmail: string;
+  initialPhone: string;
+  initialAddress: string;
   checkoutMode: "single" | "cart";
 };
 
-export function OrderPageClient({ products, selectedProductId, userEmail, checkoutMode }: Props) {
+export function OrderPageClient({
+  products,
+  selectedProductId,
+  userEmail,
+  initialPhone,
+  initialAddress,
+  checkoutMode,
+}: Props) {
   const router = useRouter();
   const { items: cartItems, isReady, clear } = useCart();
   const isCartCheckout = checkoutMode === "cart";
@@ -34,8 +43,8 @@ export function OrderPageClient({ products, selectedProductId, userEmail, checko
   const hasPreselectedProduct = !isCartCheckout && !!selectedProductId && products.some((product) => product.id === selectedProductId);
   const [productId, setProductId] = useState(hasPreselectedProduct ? selectedProductId : fallbackProductId);
   const [quantity, setQuantity] = useState(1);
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState(initialPhone);
+  const [address, setAddress] = useState(initialAddress);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);

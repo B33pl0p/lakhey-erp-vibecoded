@@ -45,6 +45,8 @@ export default async function OrderPage({ searchParams }: Props) {
       products={products}
       selectedProductId={product}
       userEmail={user.email}
+      initialPhone={user.phone || ""}
+      initialAddress={user.address || ""}
       checkoutMode={isCartCheckout ? "cart" : "single"}
     />
   );

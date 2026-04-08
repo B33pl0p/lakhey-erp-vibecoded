@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { Query } from "node-appwrite";
-import { createAdminClient, createSessionClient } from "@/lib/appwrite/server";
+import { createAdminClient } from "@/lib/appwrite/server";
 import { appwriteConfig } from "@/lib/appwrite/config";
+import { ensureAdminSession } from "@/lib/api/adminAuth";
 
 export async function GET() {
   try {
-    const { account } = await createSessionClient();
-    await account.get();
+    await ensureAdminSession();
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -54,4 +54,3 @@ export async function GET() {
     generatedAt: new Date().toISOString(),
   });
 }
-

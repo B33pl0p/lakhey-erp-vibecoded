@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const allProducts = await getProducts();
-  const activeProducts = allProducts.filter((p) => p.is_active).slice(0, 12);
+  const activeProducts = allProducts.filter((p) => p.is_active).slice(0, 10);
 
   const products = await Promise.all(
     activeProducts.map(async (p) => {

@@ -179,6 +179,8 @@ function toOrderSummary(order: WebsiteTrackedOrder): WebsiteCustomerOrderSummary
 export async function getCustomerSessionUser(): Promise<{
   name?: string;
   email: string;
+  phone?: string;
+  address?: string;
 } | null> {
   try {
     const cookieStore = await cookies();
@@ -187,10 +189,13 @@ export async function getCustomerSessionUser(): Promise<{
 
     const { account } = await createSessionClient();
     const user = await account.get();
+    const customer = await getCustomerRecordByEmail(user.email);
 
     return {
       name: user.name,
       email: user.email,
+      phone: customer?.phone ? String(customer.phone) : "",
+      address: customer?.address ? String(customer.address) : "",
     };
   } catch {
     return null;

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { CircleUserRound, Menu, X } from "lucide-react";
 import { CartLink } from "@/components/website/CartLink";
 import styles from "./WebsiteNav.module.css";
+import { logoutCustomerAction } from "@/lib/api/customerAuth";
 
 type WebsiteNavProps = {
   className?: string;
@@ -13,10 +14,41 @@ type WebsiteNavProps = {
 
 export function WebsiteNav({ className }: WebsiteNavProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   function closeMenu() {
     setIsMenuOpen(false);
   }
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadSession() {
+      try {
+        const response = await fetch("/api/customer/session", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (isActive) {
+          setUser(data.user || null);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoadingUser(false);
+        }
+      }
+    }
+
+    loadSession();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const accountLabel = user?.name?.trim()
+    ? user.name.trim().split(" ")[0]
+    : "Account";
 
   return (
     <header className={`${styles.wrap} ${className || ""}`.trim()}>
@@ -56,9 +88,23 @@ export function WebsiteNav({ className }: WebsiteNavProps) {
           </div>
 
           <div className={styles.actions}>
-            <Link href="/account" className={styles.secondaryBtn} onClick={closeMenu}>
-              Login / Signup
-            </Link>
+            {isLoadingUser ? null : user ? (
+              <div className={styles.accountArea}>
+                <Link href="/account" className={styles.accountBtn} onClick={closeMenu}>
+                  <CircleUserRound size={16} />
+                  <span>{accountLabel}</span>
+                </Link>
+                <form action={logoutCustomerAction}>
+                  <button type="submit" className={styles.secondaryBtn}>
+                    Logout
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <Link href="/account" className={styles.secondaryBtn} onClick={closeMenu}>
+                Login / Signup
+              </Link>
+            )}
             <CartLink className={styles.primaryBtn} onClick={closeMenu} />
           </div>
         </div>

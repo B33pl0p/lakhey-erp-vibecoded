@@ -3,11 +3,13 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createAdminClient, createSessionClient } from '@/lib/appwrite/server';
+import { createAdminSessionMarker } from '@/lib/auth/adminSession';
 
 export async function loginAction(email: string, password: string): Promise<{ error?: string }> {
   try {
     const { account } = await createAdminClient();
     const session = await account.createEmailPasswordSession(email, password);
+    const adminMarker = await createAdminSessionMarker(session.secret);
 
     const cookieStore = await cookies();
     cookieStore.set('appwrite-session', session.secret, {
@@ -17,7 +19,7 @@ export async function loginAction(email: string, password: string): Promise<{ er
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
     });
-    cookieStore.set('admin-session', '1', {
+    cookieStore.set('admin-session', adminMarker, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
