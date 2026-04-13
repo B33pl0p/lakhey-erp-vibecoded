@@ -3,7 +3,7 @@ import { formatCurrency } from "@/lib/utils/currency";
 import Link from "next/link";
 import {
   TrendingUp, TrendingDown, AlertTriangle, CreditCard,
-  Users, Clock, ArrowRight, Wallet,
+  Users, Clock, ArrowRight, Wallet, ClipboardList, Target,
 } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -33,7 +33,7 @@ export default async function FinancePage() {
         <div>
           <h1 className={styles.pageTitle}>Finance Tracker</h1>
           <p className={styles.pageSubtitle}>
-            Collected · Outstanding · Cash flow · Receivables
+            Actual cash · Receivables · Confirmed backlog · Quotation pipeline
           </p>
         </div>
         <Link href="/admin/invoices/new" className={styles.primaryBtn}>
@@ -48,6 +48,7 @@ export default async function FinancePage() {
           <div className={styles.cardBody}>
             <p className={styles.cardLabel}>Total Invoiced</p>
             <p className={styles.cardValue}>{formatCurrency(summary.totalInvoiced)}</p>
+            <p className={styles.cardNote}>Invoices + paid legacy orders</p>
           </div>
         </div>
 
@@ -56,6 +57,7 @@ export default async function FinancePage() {
           <div className={styles.cardBody}>
             <p className={styles.cardLabel}>Collected</p>
             <p className={styles.cardValue}>{formatCurrency(summary.totalCollected)}</p>
+            <p className={styles.cardNote}>Actual cash received</p>
           </div>
         </div>
 
@@ -64,6 +66,7 @@ export default async function FinancePage() {
           <div className={styles.cardBody}>
             <p className={styles.cardLabel}>Outstanding</p>
             <p className={styles.cardValue}>{formatCurrency(summary.totalOutstanding)}</p>
+            <p className={styles.cardNote}>Invoices + open orders due</p>
           </div>
         </div>
 
@@ -72,6 +75,7 @@ export default async function FinancePage() {
           <div className={styles.cardBody}>
             <p className={styles.cardLabel}>Total Expenses</p>
             <p className={styles.cardValue}>{formatCurrency(summary.totalExpenses)}</p>
+            <p className={styles.cardNote}>Cash out</p>
           </div>
         </div>
 
@@ -81,6 +85,33 @@ export default async function FinancePage() {
             <p className={styles.cardLabel}>Net Profit</p>
             <p className={styles.cardValue}>{formatCurrency(summary.netProfit)}</p>
             <p className={styles.cardNote}>Collected − Expenses</p>
+          </div>
+        </div>
+
+        <div className={`${styles.card} ${styles.cardBlue}`}>
+          <div className={styles.cardIcon}><Target size={20} /></div>
+          <div className={styles.cardBody}>
+            <p className={styles.cardLabel}>Confirmed Backlog</p>
+            <p className={styles.cardValue}>{formatCurrency(summary.confirmedOrderBacklog)}</p>
+            <p className={styles.cardNote}>Open non-cancelled orders</p>
+          </div>
+        </div>
+
+        <div className={`${styles.card} ${styles.cardAmber}`}>
+          <div className={styles.cardIcon}><ClipboardList size={20} /></div>
+          <div className={styles.cardBody}>
+            <p className={styles.cardLabel}>Quotation Pipeline</p>
+            <p className={styles.cardValue}>{formatCurrency(summary.quotationPipeline)}</p>
+            <p className={styles.cardNote}>Draft + sent quotes, not guaranteed</p>
+          </div>
+        </div>
+
+        <div className={`${styles.card} ${summary.projectedCashPosition >= 0 ? styles.cardGreenDark : styles.cardRed}`}>
+          <div className={styles.cardIcon}><Wallet size={20} /></div>
+          <div className={styles.cardBody}>
+            <p className={styles.cardLabel}>Projected Cash Position</p>
+            <p className={styles.cardValue}>{formatCurrency(summary.projectedCashPosition)}</p>
+            <p className={styles.cardNote}>Collected + receivables − expenses</p>
           </div>
         </div>
       </div>
