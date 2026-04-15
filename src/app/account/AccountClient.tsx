@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
 import {
+  cancelWebsiteOrderAction,
   loginCustomerAction,
   logoutCustomerAction,
   signupCustomerAction,
@@ -28,7 +29,35 @@ function toTitleCase(input: string) {
 
 export function AccountClient({ nextPath, user, orders }: Props) {
   const [error, setError] = useState<string | null>(null);
+  const [orderList, setOrderList] = useState(orders);
+  const [cancelingOrderId, setCancelingOrderId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  function handleCancelOrder(orderId: string) {
+    if (!window.confirm("Cancel this order? This is only possible while it is still pending.")) return;
+
+    setError(null);
+    setCancelingOrderId(orderId);
+
+    startTransition(async () => {
+      const result = await cancelWebsiteOrderAction({ orderId });
+      if (result.error) {
+        setError(result.error);
+        setCancelingOrderId(null);
+        return;
+      }
+
+      if (result.order) {
+        setOrderList((prev) => prev.map((order) => (
+          order.orderId === orderId
+            ? { ...order, status: result.order!.status, updatedAt: result.order!.updatedAt }
+            : order
+        )));
+      }
+
+      setCancelingOrderId(null);
+    });
+  }
 
   function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -96,19 +125,19 @@ export function AccountClient({ nextPath, user, orders }: Props) {
                   <h2>Order history</h2>
                   <p>Your recent website orders and latest statuses.</p>
                 </div>
-                {orders.length > 0 ? (
+                {orderList.length > 0 ? (
                   <a href="/track" className={styles.secondaryBtn}>Open Tracker</a>
                 ) : null}
               </div>
 
-              {orders.length > 0 ? (
+              {orderList.length > 0 ? (
                 <div className={styles.historyList}>
-                  {orders.map((order) => (
-                    <a key={order.orderId} href={`/track?order=${order.orderId}`} className={styles.historyItem}>
-                      <div>
+                  {orderList.map((order) => (
+                    <div key={order.orderId} className={styles.historyItem}>
+                      <a href={`/track?order=${order.orderId}`} className={styles.historyTitleLink}>
                         <strong>{order.title}</strong>
                         <span>Order #{order.orderId}</span>
-                      </div>
+                      </a>
                       <div className={styles.historyMeta}>
                         <span className={styles.statusBadge}>{toTitleCase(order.status)}</span>
                         <span>{formatCurrency(order.totalPrice)}</span>
@@ -118,7 +147,19 @@ export function AccountClient({ nextPath, user, orders }: Props) {
                           day: "numeric",
                         })}</span>
                       </div>
-                    </a>
+                      {order.status === "pending" ? (
+                        <button
+                          type="button"
+                          className={styles.cancelBtn}
+                          disabled={cancelingOrderId === order.orderId}
+                          onClick={() => handleCancelOrder(order.orderId)}
+                        >
+                          {cancelingOrderId === order.orderId ? "Cancelling..." : "Cancel Order"}
+                        </button>
+                      ) : (
+                        <p className={styles.cancelNote}>Cancellation is only available while an order is pending.</p>
+                      )}
+                    </div>
                   ))}
                 </div>
               ) : (

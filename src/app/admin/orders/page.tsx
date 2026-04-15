@@ -1,7 +1,7 @@
 import { getOrders } from "@/lib/api/orders";
 import { getCustomers } from "@/lib/api/customers";
 import { getInvoices } from "@/lib/api/invoices";
-import { OrderTable } from "@/components/orders/OrderTable";
+import { OrderManagementTabs } from "@/components/orders/OrderManagementTabs";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import styles from "./page.module.css";
@@ -38,13 +38,12 @@ export default async function OrdersPage() {
         </Link>
       </header>
 
-      <div className={styles.tableCard}>
-        <OrderTable
-          initialOrders={orders}
+      <OrderManagementTabs
+        orders={orders}
+        customers={customers}
           customerMap={customerMap}
           orderInvoiceMap={orderInvoiceMap}
-        />
-      </div>
+      />
     </div>
   );
 }

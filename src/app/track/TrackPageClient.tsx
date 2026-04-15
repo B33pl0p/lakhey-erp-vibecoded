@@ -3,7 +3,11 @@
 import { useMemo, useState, useTransition } from "react";
 import { WebsiteFooter } from "@/components/website/WebsiteFooter";
 import { WebsiteNav } from "@/components/website/WebsiteNav";
-import { trackWebsiteOrderAction, type WebsiteTrackedOrder } from "@/lib/api/customerAuth";
+import {
+  cancelWebsiteOrderAction,
+  trackWebsiteOrderAction,
+  type WebsiteTrackedOrder,
+} from "@/lib/api/customerAuth";
 import { formatCurrency } from "@/lib/utils/currency";
 import styles from "./page.module.css";
 
@@ -14,7 +18,7 @@ type Props = {
   initialOrders: WebsiteTrackedOrder[];
 };
 
-const statusSteps = ["pending", "printing", "done", "delivered", "paid"];
+const statusSteps = ["pending", "confirmed", "printing", "done", "delivered", "paid"];
 
 function toTitleCase(input: string) {
   return input
@@ -33,9 +37,11 @@ export function TrackPageClient({ user, initialOrderId = "", initialEmail = "", 
     initialOrders.find((item) => item.orderId === initialOrderId) || initialOrders[0] || null
   );
   const [isPending, startTransition] = useTransition();
+  const [isCancelPending, startCancelTransition] = useTransition();
 
   const currentStep = useMemo(() => {
     if (!order) return -1;
+    if (order.status === "cancelled") return -1;
     const idx = statusSteps.indexOf(order.status);
     return idx === -1 ? 0 : idx;
   }, [order]);
@@ -67,6 +73,27 @@ export function TrackPageClient({ user, initialOrderId = "", initialEmail = "", 
       }
 
       setOrder(nextOrder);
+    });
+  }
+
+  function handleCancelOrder() {
+    if (!order) return;
+    if (!window.confirm("Cancel this order? This is only possible while it is still pending.")) return;
+
+    setError(null);
+    startCancelTransition(async () => {
+      const result = await cancelWebsiteOrderAction({ orderId: order.orderId });
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      if (result.order) {
+        setOrder(result.order);
+        setOrders((prev) => prev.map((item) => (
+          item.orderId === result.order!.orderId ? result.order! : item
+        )));
+      }
     });
   }
 
@@ -167,7 +194,19 @@ export function TrackPageClient({ user, initialOrderId = "", initialEmail = "", 
                 <p className={styles.resultKicker}>Order #{order.orderId}</p>
                 <h2>{order.title}</h2>
               </div>
-              <span className={styles.statusBadge}>{toTitleCase(order.status)}</span>
+              <div className={styles.resultActions}>
+                <span className={styles.statusBadge}>{toTitleCase(order.status)}</span>
+                {user && order.status === "pending" ? (
+                  <button
+                    type="button"
+                    className={styles.cancelBtn}
+                    onClick={handleCancelOrder}
+                    disabled={isCancelPending}
+                  >
+                    {isCancelPending ? "Cancelling..." : "Cancel Order"}
+                  </button>
+                ) : null}
+              </div>
             </div>
 
             <div className={styles.timeline}>

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Edit2, User, Package, FileText, Download } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { SendOrderConfirmationButton } from "@/components/orders/SendOrderConfirmationButton";
 import { formatCurrency } from "@/lib/utils/currency";
 import styles from "./page.module.css";
 
@@ -63,6 +64,11 @@ export default async function OrderDetailPage({ params }: Props) {
           </div>
         </div>
         <div className={styles.headerActions}>
+          <SendOrderConfirmationButton
+            orderId={order.$id}
+            customerEmail={customer?.email}
+            className={styles.emailBtn}
+          />
           <Link href={`/admin/invoices/new?order_id=${order.$id}`} className={styles.invoiceBtn}>
             <FileText size={16} />
             Generate Invoice

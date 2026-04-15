@@ -18,7 +18,7 @@ interface OrderFormProps {
 }
 
 const FILAMENT_TYPES: FilamentType[] = ["PLA", "PETG", "ABS", "TPU", "ASA", "Resin", "Other"];
-const ORDER_STATUSES: OrderStatus[] = ["pending", "printing", "done", "delivered", "cancelled"];
+const ORDER_STATUSES: OrderStatus[] = ["pending", "confirmed", "printing", "done", "delivered", "cancelled"];
 
 export function OrderForm({ initialData, customers, products }: OrderFormProps) {
   const router = useRouter();

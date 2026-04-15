@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { Account, Client, ID, Query } from "node-appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { createAdminClient, createSessionClient } from "@/lib/appwrite/server";
@@ -448,5 +449,66 @@ export async function trackWebsiteOrderAction(input: {
     };
   } catch {
     return { error: sessionUser ? "Order not found in your account." : "Order not found. Please check the order ID and email." };
+  }
+}
+
+export async function cancelWebsiteOrderAction(input: {
+  orderId: string;
+}): Promise<{ error?: string; order?: WebsiteTrackedOrder }> {
+  const orderId = input.orderId.trim();
+  const sessionUser = await getCustomerSessionUser();
+
+  if (!sessionUser?.email) {
+    return { error: "Please login to cancel an order." };
+  }
+
+  if (!orderId) {
+    return { error: "Please provide your order ID." };
+  }
+
+  try {
+    const { databases } = await createAdminClient();
+
+    const order = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.orders,
+      orderId
+    );
+
+    const customer = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.customers,
+      String(order.customer_id)
+    );
+
+    const customerEmail = String(customer.email || "").trim().toLowerCase();
+    const sessionEmail = sessionUser.email.trim().toLowerCase();
+
+    if (!customerEmail || customerEmail !== sessionEmail) {
+      return { error: "That order does not belong to your account." };
+    }
+
+    if (String(order.status) !== "pending") {
+      return { error: "This order can no longer be cancelled because it is already being processed." };
+    }
+
+    const updated = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.orders,
+      orderId,
+      { status: "cancelled" }
+    );
+
+    revalidatePath("/account");
+    revalidatePath("/track");
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath("/admin/finance");
+
+    return {
+      order: toTrackedOrder(updated as unknown as Record<string, unknown>),
+    };
+  } catch {
+    return { error: "Could not cancel this order. Please refresh and try again." };
   }
 }

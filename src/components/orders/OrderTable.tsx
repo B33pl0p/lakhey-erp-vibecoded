@@ -7,7 +7,7 @@ import { deleteOrder, updateOrderStatus, convertOrderToInvoice } from "@/lib/api
 import { useToast } from "@/components/ui/ToastContext";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Edit2, Trash2, Search, ShoppingCart, FileText } from "lucide-react";
+import { CheckCircle, Edit2, Trash2, Search, ShoppingCart, FileText } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils/currency";
 import styles from "./OrderTable.module.css";
@@ -18,7 +18,7 @@ interface OrderTableProps {
   orderInvoiceMap?: Record<string, string>; // orderId → invoiceId
 }
 
-const STATUS_OPTIONS: OrderStatus[] = ["pending", "printing", "done", "delivered", "paid", "cancelled"];
+const STATUS_OPTIONS: OrderStatus[] = ["pending", "confirmed", "printing", "done", "delivered", "paid", "cancelled"];
 
 export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }: OrderTableProps) {
   const router = useRouter();
@@ -67,6 +67,8 @@ export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }:
       setOrders(prev => prev.map(o => o.$id === id ? { ...o, status } : o));
       if (status === 'paid') {
         toast("Order marked as paid — invoice auto-created", "success");
+      } else if (status === "confirmed") {
+        toast("Order confirmed", "success");
       } else {
         toast("Status updated", "success");
       }
@@ -198,6 +200,17 @@ export function OrderTable({ initialOrders, customerMap, orderInvoiceMap = {} }:
                     <td className={styles.muted}>{createdAt}</td>
                     <td className={styles.actionsCell}>
                       <div className={styles.actions}>
+                        {order.status === "pending" ? (
+                          <button
+                            className={styles.confirmOrderBtn}
+                            title="Mark order as confirmed"
+                            disabled={updatingId === order.$id}
+                            onClick={() => handleStatusChange(order.$id, "confirmed")}
+                          >
+                            <CheckCircle size={14} />
+                            <span>Confirm</span>
+                          </button>
+                        ) : null}
                         {invoiceMap[order.$id] ? (
                           <Link
                             href={`/admin/invoices/${invoiceMap[order.$id]}`}

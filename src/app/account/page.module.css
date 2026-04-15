@@ -163,11 +163,20 @@
   padding: 0.9rem;
 }
 
-.historyItem strong {
+.historyTitleLink {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.historyTitleLink:hover strong {
+  color: var(--accent);
+}
+
+.historyTitleLink strong {
   display: block;
 }
 
-.historyItem > div:first-child span {
+.historyTitleLink span {
   display: block;
   margin-top: 0.28rem;
   color: var(--muted);
@@ -191,6 +200,34 @@
   padding: 0.28rem 0.62rem;
   font-size: 0.8rem;
   font-weight: 700;
+}
+
+.cancelBtn {
+  width: fit-content;
+  border: 1px solid rgba(255, 154, 161, 0.35);
+  border-radius: 999px;
+  background: rgba(230, 57, 70, 0.12);
+  color: #ffd4d8;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  border-color: rgba(255, 154, 161, 0.65);
+  background: rgba(230, 57, 70, 0.2);
+}
+
+.cancelBtn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.cancelNote {
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .emptyState {

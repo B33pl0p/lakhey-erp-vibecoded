@@ -1,0 +1,39 @@
+.wrap {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.tabs {
+  display: inline-flex;
+  width: fit-content;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.28rem;
+  background: var(--surface);
+}
+
+.tab,
+.tabActive {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  color: var(--foreground);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.tabActive {
+  color: #fff;
+  background: var(--accent);
+}
+
+.tableCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+}

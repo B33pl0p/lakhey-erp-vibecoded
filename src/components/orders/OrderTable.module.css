@@ -151,6 +151,32 @@
   background: #dcfce7;
 }
 
+.confirmOrderBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.confirmOrderBtn:hover:not(:disabled) {
+  background: #bfdbfe;
+  color: #1e40af;
+}
+
+.confirmOrderBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .confirmInline {
   display: flex;
   align-items: center;

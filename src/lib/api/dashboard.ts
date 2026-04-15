@@ -133,7 +133,7 @@ export async function getDashboardData(): Promise<DashboardStats> {
   // Order aggregations
   const totalOrders = ordersRes.total;
   const pendingOrders = ordersRes.documents.filter(d => d.status === 'pending').length;
-  const inProgressOrders = ordersRes.documents.filter(d => d.status === 'printing').length;
+  const inProgressOrders = ordersRes.documents.filter(d => d.status === 'confirmed' || d.status === 'printing').length;
 
   const invoicedOrderIds = new Set<string>();
   for (const inv of invoicesRes.documents) {

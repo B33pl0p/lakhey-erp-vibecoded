@@ -3,6 +3,7 @@ import styles from "./Badge.module.css";
 type BadgeStatus = 
   // Orders
   | "pending" 
+  | "confirmed"
   | "printing" 
   | "done" 
   | "delivered" 
@@ -36,6 +37,7 @@ export function Badge({ status, label }: BadgeProps) {
       break;
     case "printing":
     case "sent":
+    case "confirmed":
       statusClass = styles.blue;
       break;
     case "done":

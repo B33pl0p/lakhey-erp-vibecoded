@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { getInvoiceByOrder, createInvoice } from './invoices';
 import { addPayment } from './payments';
 
-export type OrderStatus = "pending" | "printing" | "done" | "delivered" | "paid" | "cancelled";
+export type OrderStatus = "pending" | "confirmed" | "printing" | "done" | "delivered" | "paid" | "cancelled";
 export type FilamentType = "PLA" | "PETG" | "ABS" | "TPU" | "ASA" | "Resin" | "Other";
 
 export interface Order {
@@ -77,6 +77,9 @@ export async function getOrdersByCustomer(customerId: string): Promise<Order[]> 
 
 export async function createOrder(data: Partial<Order>) {
   const { databases } = await createAdminClient();
+  if (data.status === "confirmed") {
+    await ensureConfirmedOrderStatusAttribute(databases);
+  }
 
   const payload: Record<string, unknown> = {
     customer_id: data.customer_id,
@@ -127,6 +130,9 @@ export async function createOrder(data: Partial<Order>) {
 
 export async function updateOrder(id: string, data: Partial<Order>) {
   const { databases } = await createAdminClient();
+  if (data.status === "confirmed") {
+    await ensureConfirmedOrderStatusAttribute(databases);
+  }
 
   const payload: Record<string, unknown> = {};
 
@@ -207,6 +213,9 @@ export async function updateOrder(id: string, data: Partial<Order>) {
 
 export async function updateOrderStatus(id: string, status: OrderStatus) {
   const { databases } = await createAdminClient();
+  if (status === "confirmed") {
+    await ensureConfirmedOrderStatusAttribute(databases);
+  }
   await databases.updateDocument(
     appwriteConfig.databaseId,
     appwriteConfig.collections.orders,
@@ -285,6 +294,45 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath('/admin/invoices');
   revalidatePath('/admin/finance');
+}
+
+async function ensureConfirmedOrderStatusAttribute(
+  databases: Awaited<ReturnType<typeof createAdminClient>>["databases"]
+) {
+  try {
+    const attr = await databases.getAttribute(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.orders,
+      "status"
+    ) as { elements?: string[]; required?: boolean; default?: string | null };
+
+    if (!Array.isArray(attr.elements) || attr.elements.includes("confirmed")) return;
+
+    const nextElements = [...attr.elements, "confirmed"];
+    const dbWithEnumUpdate = databases as typeof databases & {
+      updateEnumAttribute?: (
+        databaseId: string,
+        collectionId: string,
+        key: string,
+        elements: string[],
+        required?: boolean,
+        defaultValue?: string | null
+      ) => Promise<unknown>;
+    };
+
+    if (typeof dbWithEnumUpdate.updateEnumAttribute !== "function") return;
+
+    await dbWithEnumUpdate.updateEnumAttribute(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.orders,
+      "status",
+      nextElements,
+      attr.required ?? true,
+      attr.default ?? "pending"
+    );
+  } catch {
+    // If status is not an enum or schema updates are unavailable, let the normal write path decide.
+  }
 }
 
 export async function deleteOrder(id: string) {

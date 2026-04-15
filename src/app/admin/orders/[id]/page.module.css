@@ -87,26 +87,47 @@
   display: flex;
   gap: 0.75rem;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
+.emailBtn,
 .invoiceBtn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
   border-radius: 8px;
-  background: var(--accent);
   color: white;
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.emailBtn {
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+}
+
+.invoiceBtn {
+  background: var(--accent);
   box-shadow: 0 4px 12px var(--accent-glow);
 }
 
+.emailBtn:hover,
 .invoiceBtn:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
+}
+
+.emailBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+  transform: none;
 }
 
 .editBtn {
@@ -320,5 +341,12 @@
 
   .headerActions {
     width: 100%;
+  }
+
+  .emailBtn,
+  .invoiceBtn,
+  .editBtn {
+    flex: 1;
+    justify-content: center;
   }
 }

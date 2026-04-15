@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 const ORDER_STATUS_COLORS: Record<string, string> = {
   pending:   "#f59e0b",
+  confirmed: "#2563eb",
   printing:  "#3b82f6",
   done:      "#10b981",
   delivered: "#6b7280",
