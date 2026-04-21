@@ -712,9 +712,10 @@
 
 .slideCardLeft,
 .slideCardRight {
-  animation-duration: 1.05s;
-  animation-timing-function: cubic-bezier(0.2, 0.82, 0.2, 1);
+  animation-duration: 1.35s;
+  animation-timing-function: cubic-bezier(0.22, 0.8, 0.22, 1);
   animation-fill-mode: both;
+  will-change: transform;
 }
 
 .slideCardLeft {
@@ -728,23 +729,19 @@
 
 @keyframes showcaseSlideLeft {
   from {
-    opacity: 0;
-    transform: translateX(-10px) translateY(8px) scale(0.988);
+    transform: translateX(-28px);
   }
   to {
-    opacity: 1;
-    transform: translateX(0) translateY(0) scale(1);
+    transform: translateX(0);
   }
 }
 
 @keyframes showcaseSlideRight {
   from {
-    opacity: 0;
-    transform: translateX(10px) translateY(8px) scale(0.988);
+    transform: translateX(28px);
   }
   to {
-    opacity: 1;
-    transform: translateX(0) translateY(0) scale(1);
+    transform: translateX(0);
   }
 }
 

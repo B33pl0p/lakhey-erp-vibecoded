@@ -103,9 +103,9 @@ export function LandingPage({ products }: LandingPageProps) {
           <p className={styles.heroTagline}>Designed in Nepal, built with precision.</p>
 
           <div className={styles.heroActions}>
-            <a href="#showroom" className={styles.primaryBtn}>
+            <Link href="/products" className={styles.primaryBtn}>
               Visit Store
-            </a>
+            </Link>
             <Link href="/studio" className={styles.primaryBtn}>
               Start Custom Project
             </Link>
@@ -155,7 +155,7 @@ export function LandingPage({ products }: LandingPageProps) {
           {showcaseProducts.length > 0 ? (
             showcaseProducts.map((product, index) => (
               <article
-                key={`${product.id}-${rotation}-${index}`}
+                key={`${product.id}-${index}`}
                 className={`${styles.productCard} ${index === 0 ? styles.productCardHero : styles.productCardFeature} ${index === 0 ? styles.slideCardLeft : styles.slideCardRight}`.trim()}
               >
                 <Link href={`/products/${product.id}`} className={styles.productMedia}>
